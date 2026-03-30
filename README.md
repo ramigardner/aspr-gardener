@@ -1,245 +1,274 @@
 # ASPR Gardener
 
-**Adaptive Structural Pruning \& Reporting** — agente de poda para controlar la acumulación de complejidad en sistemas de inferencia de IA.
+### Adaptive Structural Regulation for AI Systems
 
-[!\[License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[!\[Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
-[!\[arXiv](https://img.shields.io/badge/paper-arXiv-red.svg)](#paper)
+**ASPR (Adaptive Structural Pruning & Reporting)** is a regulatory framework designed to control structural complexity in AI inference systems.
 
-\---
+Instead of relying on static cleanup, ASPR introduces a **continuous regulation layer** ("Gardener") that observes system behavior and maintains equilibrium through adaptive pruning.
 
-## El problema
+![License: MIT](LICENSE) ![Python 3.8+](https://www.python.org/) ![arXiv](#paper)
 
-Los sistemas de IA tienden a crecer sin eliminar componentes obsoletos. Con el tiempo, clusters que dejaron de recibir requests permanecen activos: consumen energía, generan ruido estructural y degradan la eficiencia sin que nadie lo note.
+---
 
-No existe un mecanismo estándar para detectar y eliminar este desperdicio en tiempo de ejecución.
+## 🧠 Abstract
 
-## La solución
+Modern AI systems tend to accumulate structural complexity over time. Components that are no longer functionally relevant remain active, consuming resources and degrading overall system efficiency.
 
-ASPR introduce un agente "jardinero" que corre en paralelo al sistema principal:
+ASPR introduces a continuous regulatory mechanism that:
 
-1. **Detecta** clusters con uso igual o menor al umbral configurado
-2. **Elimina** los componentes innecesarios de forma segura y reversible
-3. **Estabiliza** el sistema en un estado de menor complejidad
-4. **Reporta** métricas de ahorro exportables para informes de sostenibilidad (GHG Protocol Scope 3)
+* observes usage patterns
+* detects underutilized or idle structures
+* applies adaptive, reversible pruning
 
-## Resultados
+The result is a system that **self-regulates instead of passively growing**.
 
-Simulación de **10 millones de requests** con parámetros estándar:
+---
 
-|Métrica|Baseline|ASPR|Delta|
-|-|-|-|-|
-|Clusters promedio|24.0|20.8|**−13.3%**|
-|Energía consumida|2,400 u.|2,082 u.|**−13.28%**|
-|Latencia p50|5.17 ms|5.17 ms|**0 ms**|
-|Latencia p95|5.53 ms|5.53 ms|**0 ms**|
-|Latencia p99|5.61 ms|5.61 ms|**0 ms**|
+## ⚠️ Problem Statement
 
-> Reducción significativa de energía y complejidad estructural sin impacto en latencia.
+AI systems exhibit **monotonic growth without natural decay**:
 
-\---
+* Obsolete components persist indefinitely
+* Resource consumption increases without proportional utility
+* Structural noise accumulates silently
+* System efficiency degrades over time
 
-## Instalación
+There is currently **no standard mechanism for runtime structural regulation** in AI systems.
 
-No requiere dependencias externas para el núcleo de simulación.
+---
 
-```bash
-git clone https://github.com/tu-usuario/aspr-gardener
-cd aspr-gardener
-python mvp\_compare.py
+## 💡 Approach
+
+ASPR introduces a parallel agent ("Gardener") that operates continuously:
+
+* detects low-usage clusters
+* removes unnecessary components
+* stabilizes the system dynamically
+* reports efficiency metrics
+
+It does not modify the core system — it regulates it.
+
+---
+
+## 🔁 System Dynamics
+
+Without ASPR:
+
+```
+growth → accumulation → inefficiency → degradation
 ```
 
-Para el dashboard interactivo (opcional):
+With ASPR:
+
+```
+growth → detection → pruning → stabilization
+```
+
+👉 Result: **dynamic equilibrium instead of uncontrolled expansion**
+
+---
+
+## 📊 Experimental Results
+
+Simulation: **10 million requests**, standard parameters
+
+| Metric             | Baseline | ASPR    | Delta   |
+| ------------------ | -------- | ------- | ------- |
+| Avg Clusters       | 24.0     | 20.8    | −13.3%  |
+| Energy Consumption | 2400 u.  | 2082 u. | −13.28% |
+| Latency p50        | 5.17 ms  | 5.17 ms | 0       |
+| Latency p95        | 5.53 ms  | 5.53 ms | 0       |
+| Latency p99        | 5.61 ms  | 5.61 ms | 0       |
+
+**Key result:**
+Structural and energy reduction **without latency degradation**
+
+---
+
+## 📈 Structural Evolution (Simulated)
+
+Cluster evolution over time:
+
+```
+Clusters
+ 30 |            ████
+ 28 |           ██████
+ 26 |          ████████
+ 24 | ██████████████████   ← baseline (unbounded growth)
+ 22 | ████████████████
+ 20 | ██████████████       ← ASPR stabilizes
+ 18 | ███████████
+ 16 |
+    +--------------------------------
+      0   20   40   60   80   100 epochs
+```
+
+👉 Without ASPR: cumulative growth
+👉 With ASPR: progressive stabilization
+
+---
+
+## ⚠️ Not Just Pruning
+
+ASPR is not a static cleanup tool.
+
+Traditional approaches rely on:
+
+* fixed thresholds
+* one-time deletion
+* no system awareness
+
+ASPR introduces:
+
+* continuous structural regulation
+* behavior-aware pruning
+* system-level equilibrium
+
+👉 The goal is not deletion — it is **stability under evolution**
+
+---
+
+## 🧱 Architecture
+
+```
+aspr-gardener/
+│
+├── mvp_compare.py   # Simulation engine
+├── launch.py        # Launcher + dashboard
+├── data/            # Generated CSV results
+├── logs/            # Runtime logs
+└── lib/             # Optional dependencies
+```
+
+---
+
+## 🚀 Usage
+
+### Run simulation
+
+```bash
+python mvp_compare.py
+```
+
+### Custom parameters
+
+```bash
+python mvp_compare.py --requests 1000000 --epochs 50 --clusters 48
+```
+
+---
+
+### Dashboard
 
 ```bash
 pip install flask plotly
 python launch.py --dashboard
 ```
 
-\---
-
-## Uso
-
-### Simulación en terminal
-
-```bash
-# Simulación estándar (10M requests)
-python mvp\_compare.py
-
-# Parámetros custom
-python mvp\_compare.py --requests 1\_000\_000 --epochs 50 --clusters 48
-
-# Ver todas las opciones
-python mvp\_compare.py --help
-```
-
-### Launcher con dashboard
-
-```bash
-# Menú interactivo
-python launch.py
-
-# Simulación + dashboard en browser
-python launch.py --sim --dashboard
-
-# Solo dashboard (puerto custom)
-python launch.py --dashboard --port 8080
-```
-
-El dashboard se abre en `http://localhost:7771` y permite correr simulaciones y visualizar resultados sin salir del browser.
-
-### Desde un pendrive
-
-El launcher instala dependencias localmente en el pendrive sin tocar la máquina host:
-
-```bash
-# Primera vez (requiere internet)
-python launch.py
-
-# Ejecuciones siguientes (offline)
-python launch.py --sim --dashboard
-```
-
-\---
-
-## Arquitectura
+Open:
 
 ```
-aspr-gardener/
-├── mvp\_compare.py   # Motor de simulación: Config, Cluster, System
-├── launch.py        # Launcher multiplataforma con dashboard Flask+Plotly
-├── data/            # Resultados CSV generados automáticamente
-├── logs/            # Logs del dashboard
-└── lib/             # Dependencias opcionales (se instalan aquí, no en el sistema)
+http://localhost:7771
 ```
 
-### Componentes principales
+---
 
-**`Config`** — parámetros de simulación: requests totales, epochs, clusters iniciales, tasa de deriva, umbral de poda.
+## 📊 Output
 
-**`Cluster`** — unidad básica del sistema. Cada cluster tiene un `usage` que evoluciona por epoch. Cuando cae por debajo del umbral, es candidato a poda.
+Each run generates:
 
-**`System`** — gestiona la colección de clusters. En modo `baseline` solo crece. En modo `aspr` ejecuta el agente jardinero en cada epoch.
+```
+data/results_YYYYMMDD_HHMMSS.csv
+```
 
-\---
+Format:
 
-## Parámetros de configuración
+```
+metric,baseline,aspr,delta_pct
+```
 
-|Parámetro|Default|Descripción|
-|-|-|-|
-|`--requests`|10,000,000|Total de requests a simular|
-|`--epochs`|100|Número de epochs de evaluación|
-|`--clusters`|24|Clusters iniciales|
-|`--idle-rate`|0.133|Tasa de deriva hacia idle|
-|`--idle-threshold`|0.0|Uso mínimo para considerar activo|
-|`--seed`|42|Semilla aleatoria (reproducibilidad)|
+Compatible with **GHG Protocol Scope 3 reporting**.
 
-\---
+---
 
-## Integración en producción
+## 🧪 Production Integration
 
-ASPR está diseñado para integrarse como proceso paralelo, sin modificar el sistema principal.
+ASPR is designed as a **sidecar process**:
 
-**Modo observación** (recomendado para comenzar):
+### Observation mode
 
 ```python
-from mvp\_compare import Config, System
-
-cfg = Config(total\_requests=1\_000\_000, epochs=10)
-aspr = System(name="ASPR", cfg=cfg, enable\_pruning=False)  # solo reporta
+aspr = System(enable_pruning=False)
 ```
 
-**Modo activo:**
+### Active mode
 
 ```python
-aspr = System(name="ASPR", cfg=cfg, enable\_pruning=True)
+aspr = System(enable_pruning=True)
 ```
 
-**Rollback:** cada cluster eliminado queda registrado en el log de auditoría. La restauración es inmediata.
+✔ Non-intrusive
+✔ Fully reversible
+✔ Auditable
 
-\---
+---
 
-## Métricas exportadas
+## 🧬 Future — Ghost Registry
 
-Cada simulación genera un CSV en `data/results\_YYYYMMDD\_HHMMSS.csv`:
+Next iteration introduces a memory layer:
 
-```
-metric,baseline,aspr,delta\_pct
-avg\_clusters,24.0,20.8,-13.3
-total\_energy,2400.0,2082.0,-13.28
-lat\_p50,5.17,5.17,0.0
-lat\_p95,5.53,5.53,0.0
-lat\_p99,5.61,5.61,0.0
-pruning\_cycles,0,12,N/A
-pruned\_total,0,38,N/A
-```
+* tracks historical pruning patterns
+* identifies recurring structural failures
+* prevents re-emergence of inefficient configurations
 
-El formato es compatible con GHG Protocol Scope 3 para informes de sostenibilidad.
+👉 This transforms ASPR from **reactive pruning** to **evolutionary regulation**
 
-\---
+---
 
-## Paper
+## 📄 Paper (in progress)
 
-> \*\*ASPR: Adaptive Structural Pruning for AI System Efficiency\*\*
-> \[ramiro guevara], \[2025]
-> \[Enlace a arXiv cuando esté disponible]
+**ASPR: Adaptive Structural Regulation for AI System Efficiency**
+Ramiro Guevara, 2025
 
-Si usás ASPR en tu investigación:
+---
 
-```bibtex
-@software{aspr\_gardener,
-  author  = {Ramiro Guevara},
-  title   = {ASPR Gardener: Adaptive Structural Pruning for AI Systems},
-  year    = {2025},
-  url     = {https://github.com/ramigardner/aspr-gardener},
-  license = {MIT}
-}
-```
+## 📌 Project Status
 
-\---
+* ✅ Baseline vs ASPR simulation
+* ✅ Interactive dashboard
+* ✅ CSV export
+* 🚧 Ghost Registry (memory layer)
+* 🚧 Production validation
+* 🚧 Kubernetes sidecar
 
-## Estado del proyecto
+---
 
-* \[x] Simulación baseline vs ASPR
-* \[x] Dashboard interactivo (Flask + Plotly)
-* \[x] Launcher multiplataforma (Windows / macOS / Linux)
-* \[x] Exportación CSV compatible con GHG Protocol
-* \[ ] Validación en producción real ← *buscando early adopters*
-* \[ ] Paper con datos de producción
-* \[ ] Integración como sidecar de Kubernetes
-* \[ ] Soporte para métricas de hardware (RAPL, IPMI)
+## 🤝 Contributions
 
-\---
+Areas of interest:
 
-## Contribuciones
+* hardware-level metrics (RAPL, IPMI)
+* Kubernetes integration
+* GHG / ISO measurement frameworks
+* real-world deployment cases
 
-Las contribuciones son bienvenidas. Áreas prioritarias:
+---
 
-* **Instrumentación real**: adaptadores para leer consumo de hardware (RAPL en Linux, IPMI, DCMI)
-* **Integración con orquestadores**: Kubernetes sidecar, Docker Compose
-* **Metodologías de medición**: alineación con estándares ISO 14064 / GHG Protocol
-* **Casos de uso**: si lo desplegás y tenés resultados, un issue con los datos es enormemente valioso
+## 🧪 Pilot Program
 
-Para contribuir: fork → branch → PR con descripción del cambio y, si aplica, métricas antes/después.
+Looking for early adopters to validate ASPR in real infrastructure.
 
-\---
+Contact: **[ramiguevara@gmail.com](mailto:ramiguevara@gmail.com)**
 
-## Piloto en producción
+---
 
-Si operás infraestructura de inferencia y querés validar ASPR en producción real, estoy buscando los primeros early adopters.
+## 📜 License
 
-Lo que ofrezco: código + documentación + soporte técnico asíncrono durante 30 días.  
-Lo que necesito: que lo corras en tu infra y compartas las métricas (podés anonimizarlas).
+MIT License
 
-Contacto: **\[ramiguevara@gmail.com]**
+---
 
-\---
+## 🧠 Closing Thought
 
-## Licencia
-
-MIT — libre para usar, modificar y distribuir. Ver [LICENSE](LICENSE).
-
-\---
-
-*"Los sistemas de IA deberían poder podar lo que ya no necesitan. Los jardines también."*
-
+> Systems that only grow will eventually collapse under their own complexity.
+> Systems that regulate themselves can evolve.
