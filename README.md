@@ -125,7 +125,10 @@ ASPR introduces:
 * system-level equilibrium
 
 👉 The goal is not deletion — it is **stability under evolution**
+ASPR is not a threshold-based cleanup system.
 
+It operates as a continuous regulatory loop that adapts to system dynamics,
+preventing structural drift rather than reacting to it.
 ---
 
 ## 🧱 Architecture
