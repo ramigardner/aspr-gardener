@@ -1,0 +1,61 @@
+{
+  "aspr_protocol_version": "1.1",
+  "registry_version": "1.0",
+  "last_updated": "2026-04-10T14:07:40.693126+00:00",
+  "nodes": [
+    {
+      "node_id": "node_a_ramigardner",
+      "alias": "Node A — Seed Node",
+      "operator": "ramigardner",
+      "role": "operator",
+      "url": "https://desktop-be9om4d.tail2e4caf.ts.net:7771",
+      "public_key_fingerprint": "5482f712f89270b7755219a75cef214e0b137ea7fd9ee012dbe504875d600769",
+      "public_key_algorithm": "Ed25519",
+      "chain_tip": "1ddb355d46b174fcc5b0384bb23ce0e07ee4233dddceb3ba0b4a9b29d2930591",
+      "total_blocks": 2290,
+      "last_seen": "2026-04-10T14:07:40.693126+00:00",
+      "endpoints": {
+        "status": "/status",
+        "probe": "/probe?ip={ip}",
+        "verify": "/verify?ip={ip}",
+        "public_key": "/public-key",
+        "chain_latest": "/chain/latest",
+        "chain_last_n": "/chain?last={n}",
+        "chain_verify": "/chain/verify?from={hash}",
+        "api_state": "/api/state"
+      },
+      "monitored_devices": [
+        {
+          "device_id": "gateway",
+          "ip": "192.168.1.1",
+          "tipo": "gateway",
+          "karma_avg": 0.9968,
+          "observations": 573
+        },
+        {
+          "device_id": "ps4",
+          "ip": "192.168.1.8",
+          "tipo": "ps4",
+          "karma_avg": 0.9967,
+          "observations": 570
+        },
+        {
+          "device_id": "laptop",
+          "ip": "192.168.1.6",
+          "tipo": "laptop",
+          "karma_avg": 0.9949,
+          "observations": 570
+        },
+        {
+          "device_id": "unknown_192_168_1_2",
+          "ip": "192.168.1.2",
+          "tipo": "unknown",
+          "karma_avg": 0.9951,
+          "observations": 568
+        }
+      ],
+      "trust_score": null,
+      "notes": "Nodo seed inicial del protocolo ASPR. Operado sobre hardware real con Tailscale Funnel HTTPS activo."
+    }
+  ]
+}
