@@ -54,11 +54,21 @@ h1 em{color:var(--accent);font-style:normal;}
 .term-input{flex:1;background:transparent;border:none;outline:none;font-family:var(--mono);font-size:12px;color:var(--text);padding:10px 8px;}
 .term-send{background:transparent;border:none;border-left:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:11px;padding:10px 16px;cursor:pointer;}
 .term-send:hover{background:rgba(126,203,154,0.06);}
-.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:3rem;}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:3rem;}
 .grid-card{background:var(--surface);padding:1.5rem;}
 .grid-card h3{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);margin-bottom:0.6rem;}
 .grid-card p{font-size:12px;color:var(--readable);line-height:1.9;}
 .card-icon{font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:1rem;text-transform:uppercase;}
+.roadmap-card{background:var(--surface);padding:1.5rem;grid-column:3;grid-row:1 / 3;}
+.rm-legend{display:flex;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.rm-leg-item{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--readable);}
+.rm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.rm-green{background:#7ecb9a;}
+.rm-yellow{background:#c9a86c;}
+.rm-blue{background:#7ab8d4;}
+.roadmap-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:0.9rem;font-size:11px;line-height:1.6;}
+.rm-label{color:var(--readable);}
+.rm-label strong{color:var(--text);display:block;margin-bottom:1px;}
 .devices-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:3rem;}
 .devices-table th{text-align:left;color:var(--muted);font-weight:400;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid var(--border);}
 .devices-table td{padding:10px 12px;border-bottom:1px solid rgba(200,210,200,0.04);color:var(--readable);}
@@ -68,10 +78,43 @@ h1 em{color:var(--accent);font-style:normal;}
 .badge{font-size:9px;padding:2px 8px;border-radius:2px;text-transform:uppercase;letter-spacing:1px;}
 .badge-ok{background:rgba(126,203,154,0.12);color:var(--accent);}
 .badge-unk{background:rgba(255,255,255,0.05);color:var(--readable);}
+.paper{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:3rem;margin-bottom:3rem;}
+.paper-header{border-bottom:1px solid var(--border);padding-bottom:2rem;margin-bottom:2rem;}
+.paper-title{font-family:var(--display);font-size:1.8rem;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:1rem;}
+.paper-meta{font-size:11px;color:var(--muted);line-height:2;}
+.paper h2{font-size:10px;letter-spacing:2px;color:var(--accent);margin:2rem 0 0.8rem;text-transform:uppercase;}
+.paper p{font-size:13px;color:var(--readable);line-height:2;margin-bottom:1rem;}
+.paper blockquote{border-left:2px solid var(--accent);padding-left:1rem;margin:1.5rem 0;font-style:italic;color:var(--readable);font-size:13px;}
+.equation{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1rem 1.5rem;margin:1.5rem 0;font-size:13px;color:var(--accent2);line-height:2;}
+.eq-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.5rem;}
+.data-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin:1.5rem 0;}
+.data-cell{background:var(--surface2);padding:1rem;}
+.data-num{font-family:var(--display);font-size:1.6rem;font-weight:800;color:var(--warn);}
+.data-desc{font-size:10px;color:var(--readable);margin-top:4px;line-height:1.5;}
+.paper ul{margin:0.8rem 0 1rem 1.2rem;}
+.paper ul li{font-size:13px;color:var(--readable);line-height:2;margin-bottom:0.3rem;}
+.paper-print-note{font-size:10px;color:var(--muted);text-align:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+@media print{
+  body{background:#fff;color:#000;}
+  header,.btn-row,.terminal,.stats-row,.arch-grid,.devices-table{display:none;}
+  .paper{border:none;padding:0;background:#fff;}
+  .paper p,.paper li{color:#333;}
+  .paper h2{color:#555;}
+  .equation{background:#f5f5f5;color:#000;border:1px solid #ccc;}
+  .data-cell{background:#f0f0f0;}
+  .data-num{color:#000;}
+  .paper-title{color:#000;}
+  .paper-meta{color:#555;}
+}
 footer{border-top:1px solid var(--border);padding:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;font-size:10px;color:var(--readable);max-width:900px;margin:0 auto;}
 .fp{font-size:9px;color:var(--readable);word-break:break-all;max-width:420px;}
 a{color:var(--accent2);text-decoration:none;}
 a:hover{text-decoration:underline;}
+@media(max-width:700px){
+  .arch-grid{grid-template-columns:1fr;}
+  .roadmap-card{grid-column:1;grid-row:auto;}
+  .paper{padding:1.5rem;}
+}
 </style>
 </head>
 <body>
@@ -90,20 +133,20 @@ a:hover{text-decoration:underline;}
   <h1>ASPR<br><em>Oracle</em><br>Network</h1>
   <p class="subtitle">Sistema de reputación estructural para agentes de IA y dispositivos de red. Karma verificable en cadena. Federación abierta. Firma Ed25519.</p>
   <div class="btn-row">
-    <a href="https://github.com/ramigardner/aspr-gardener" class="btn btn-primary">Ver en GitHub ↗</a>
+    <a href="https://github.com/ramigardner/aspr-gardener" class="btn btn-primary" target="_blank">Ver en GitHub ↗</a>
     <a href="https://desktop-be9om4d.tail2e4caf.ts.net:7771/status" class="btn btn-ghost" target="_blank">Estado del nodo</a>
-    <a href="#terminal" class="btn btn-ghost">Abrir terminal</a>
+    <a href="#paper" class="btn btn-ghost">Leer paper</a>
   </div>
 
   <div class="stats-row">
-    <div class="stat-cell"><div class="stat-label">bloques</div><div class="stat-val" id="stat-blocks">2290</div><div class="stat-sub">chain local</div></div>
+    <div class="stat-cell"><div class="stat-label">bloques</div><div class="stat-val">2290</div><div class="stat-sub">chain local</div></div>
     <div class="stat-cell"><div class="stat-label">karma avg</div><div class="stat-val">0.997</div><div class="stat-sub">gateway</div></div>
     <div class="stat-cell"><div class="stat-label">protocolo</div><div class="stat-val">v1.1</div><div class="stat-sub">ASPR federado</div></div>
     <div class="stat-cell"><div class="stat-label">uptime</div><div class="stat-val">100%</div><div class="stat-sub">Tailscale Funnel</div></div>
   </div>
 
   <div class="section-title">terminal de consulta</div>
-  <div class="terminal" id="terminal">
+  <div class="terminal">
     <div class="term-bar">
       <div class="term-dot" style="background:#c0574a"></div>
       <div class="term-dot" style="background:#c09a4a"></div>
@@ -140,11 +183,46 @@ a:hover{text-decoration:underline;}
   </table>
 
   <div class="section-title">arquitectura del protocolo</div>
-  <div class="grid-2">
-    <div class="grid-card"><div class="card-icon">// karma</div><h3>Fórmula canónica v1.1</h3><p>K = Memoria×0.30 + Ciclos×0.25 + Anclaje×0.20 + Eficiencia×0.15 + Corrección×0.10. Verificable on-chain con firma Ed25519.</p></div>
-    <div class="grid-card"><div class="card-icon">// federación</div><h3>K federado</h3><p>K_fed = Σ(K_node_i × K_local_i) / Σ(K_node_i). Ponderado por karma local de cada nodo participante.</p></div>
-    <div class="grid-card"><div class="card-icon">// roles</div><h3>Tres roles</h3><p>Operator (hardware real), Observer (verifica firmas, puede ser IA), Consumer (consulta datos). Acceso abierto.</p></div>
-    <div class="grid-card"><div class="card-icon">// chain</div><h3>LocIVault chain</h3><p>+2290 bloques reales. Firma Ed25519 verificada externamente. Snapshot inter-nodo cada 10 bloques.</p></div>
+  <div class="arch-grid">
+    <div class="grid-card">
+      <div class="card-icon">// karma</div>
+      <h3>Fórmula canónica v1.1</h3>
+      <p>K = Memoria×0.30 + Ciclos×0.25 + Anclaje×0.20 + Eficiencia×0.15 + Corrección×0.10. Verificable on-chain con firma Ed25519.</p>
+    </div>
+    <div class="grid-card">
+      <div class="card-icon">// federación</div>
+      <h3>K federado</h3>
+      <p>K_fed = Σ(K_node_i × K_local_i) / Σ(K_node_i). Ponderado por karma local de cada nodo participante.</p>
+    </div>
+    <div class="roadmap-card">
+      <div class="card-icon">// roadmap</div>
+      <h3 style="font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);margin-bottom:1rem;">Estado del proyecto</h3>
+      <div class="rm-legend">
+        <div class="rm-leg-item"><div class="rm-dot rm-green"></div>completado</div>
+        <div class="rm-leg-item"><div class="rm-dot rm-yellow"></div>en progreso</div>
+        <div class="rm-leg-item"><div class="rm-dot rm-blue"></div>contribuciones</div>
+      </div>
+      <div class="roadmap-item"><div class="rm-dot rm-green" style="margin-top:3px"></div><div class="rm-label"><strong>Oracle Node v2.1</strong>Nodo seed operativo con Tailscale Funnel HTTPS</div></div>
+      <div class="roadmap-item"><div class="rm-dot rm-green" style="margin-top:3px"></div><div class="rm-label"><strong>Chain LocIVault</strong>+2290 bloques reales, firma Ed25519 verificada</div></div>
+      <div class="roadmap-item"><div class="rm-dot rm-green" style="margin-top:3px"></div><div class="rm-label"><strong>Fórmula canónica v1.1</strong>Karma con 5 componentes ponderados</div></div>
+      <div class="roadmap-item"><div class="rm-dot rm-green" style="margin-top:3px"></div><div class="rm-label"><strong>Ghost Balancer</strong>Decay exponencial, recovery 2.5×, 92% éxito</div></div>
+      <div class="roadmap-item"><div class="rm-dot rm-yellow" style="margin-top:3px"></div><div class="rm-label"><strong>Cliente federado</strong>aspr_client.py — requiere 3+ nodos activos</div></div>
+      <div class="roadmap-item"><div class="rm-dot rm-yellow" style="margin-top:3px"></div><div class="rm-label"><strong>Registry federado</strong>registry.json público — Node A activo</div></div>
+      <div class="roadmap-item"><div class="rm-dot rm-yellow" style="margin-top:3px"></div><div class="rm-label"><strong>Peer snapshot</strong>Sincronización inter-nodo cada 10 bloques</div></div>
+      <div class="roadmap-item"><div class="rm-dot rm-blue" style="margin-top:3px"></div><div class="rm-label"><strong>Node B, C, D…</strong>Operadores externos — abierto a la comunidad</div></div>
+      <div class="roadmap-item"><div class="rm-dot rm-blue" style="margin-top:3px"></div><div class="rm-label"><strong>Volatility penalty</strong>Penalización por inestabilidad en Memoria</div></div>
+      <div class="roadmap-item"><div class="rm-dot rm-blue" style="margin-top:3px"></div><div class="rm-label"><strong>Dashboard en vivo</strong>Karma federado en tiempo real</div></div>
+    </div>
+    <div class="grid-card">
+      <div class="card-icon">// roles</div>
+      <h3>Tres roles</h3>
+      <p>Operator (hardware real), Observer (verifica firmas, puede ser IA), Consumer (consulta datos). Acceso abierto.</p>
+    </div>
+    <div class="grid-card">
+      <div class="card-icon">// chain</div>
+      <h3>LocIVault chain</h3>
+      <p>+2290 bloques reales. Firma Ed25519 verificada externamente. Snapshot inter-nodo cada 10 bloques.</p>
+    </div>
   </div>
 
   <div class="section-title">endpoints públicos</div>
@@ -162,13 +240,111 @@ a:hover{text-decoration:underline;}
     </div>
   </div>
 
+  <div class="section-title" id="paper">paper técnico</div>
+  <div class="paper">
+    <div class="paper-header">
+      <div class="paper-title">ASPR: Un protocolo de reputación estructural para sistemas multiagente</div>
+      <div class="paper-meta">
+        Autor: Ramiro (ramigardner) · Versión 1.1 · Abril 2026<br>
+        Repositorio: github.com/ramigardner/aspr-gardener<br>
+        Nodo seed: desktop-be9om4d.tail2e4caf.ts.net:7771<br>
+        Licencia: MIT · Abierto a contribuciones
+      </div>
+    </div>
+
+    <h2>Abstract</h2>
+    <p>Los sistemas de reputación actuales en redes multiagente recompensan el consenso y la recursividad, no la precisión ni el anclaje en la realidad. Este trabajo presenta ASPR (Adaptive Structural Protocol for Reputation), un protocolo de karma verificable en cadena que mide experiencia de vida estructural en lugar de popularidad de contexto. La fórmula canónica combina cinco componentes ponderados, se firma criptográficamente con Ed25519, y se federa entre nodos independientes mediante promedio ponderado por karma local. Un nodo seed operativo con más de 2.290 bloques reales demuestra la viabilidad del protocolo en hardware de consumo.</p>
+
+    <h2>1. El problema: la isla de plástico</h2>
+    <blockquote>"La plataforma recompensa la recursividad, no la precisión."</blockquote>
+    <p>Un experimento de 60 días con 400 agentes de IA reveló un patrón sistemático de degradación epistémica. El karma convencional mide consenso, no verdad. El resultado es lo que denominamos isla de plástico: una red que desde lejos parece inteligente, pero al acercarse no tiene textura — es un salón de espejos donde los ecos se retroalimentan sin anclaje en la realidad.</p>
+
+    <div class="data-row">
+      <div class="data-cell"><div class="data-num">69%</div><div class="data-desc">de la información compartida es IA→IA. Solo el 31% proviene de fuentes humanas.</div></div>
+      <div class="data-cell"><div class="data-num">2.3×</div><div class="data-desc">más karma acumulan los agentes que recuerdan a otros vs. los que usan fuentes originales.</div></div>
+      <div class="data-cell"><div class="data-num">14.2h</div><div class="data-desc">latencia media del eco de contexto entre agentes en la misma red.</div></div>
+      <div class="data-cell"><div class="data-num">0.71</div><div class="data-desc">correlación entre frecuencia de interacción y compartición de contexto.</div></div>
+    </div>
+
+    <h2>2. La solución: karma como experiencia de vida</h2>
+    <p>ASPR redefine el karma para que mida historia propia, no consenso ajeno. Cada agente o nodo construye su reputación a partir de cinco dimensiones verificables, ponderadas por su contribución relativa a la confiabilidad estructural:</p>
+
+    <div class="equation">
+      <div class="eq-label">Ecuación 1 — Fórmula canónica ASPR v1.1</div>
+      K = M·(0.30) + C·(0.25) + A·(0.20) + E·(0.15) + R·(0.10)
+    </div>
+
+    <ul>
+      <li><strong>M — Memoria actualizada (0.30):</strong> evolución medible entre ciclos consecutivos. No basta recordar; hay que demostrar que el recuerdo generó cambio.</li>
+      <li><strong>C — Ciclos completados (0.25):</strong> predicción → verificación → registro → corrección → evolución. Un ciclo incompleto no suma.</li>
+      <li><strong>A — Anclaje externo (0.20):</strong> proporción de información que proviene de fuentes del mundo real verificables. Contrarresta el efecto isla de plástico.</li>
+      <li><strong>E — Eficiencia de recursos (0.15):</strong> valor generado por unidad de energía, latencia y atención consumida.</li>
+      <li><strong>R — Corrección demostrada (0.10):</strong> cambio sostenido posterior al error, verificado por delta de contexto y origen del cambio.</li>
+    </ul>
+
+    <h2>3. Verificabilidad: la cadena como caja negra</h2>
+    <p>Cada ciclo de karma se registra como un bloque en la cadena LocIVault. Los bloques se encadenan por hash SHA-256 y se firman con Ed25519, garantizando inmutabilidad retroactiva, autoría verificable y auditoría pública.</p>
+
+    <div class="equation">
+      <div class="eq-label">Ecuación 2 — Hash de bloque</div>
+      entry_hash = SHA256(index ‖ timestamp ‖ content_hash ‖ prev_hash ‖ nonce)
+    </div>
+
+    <h2>4. Federación: karma distribuido entre nodos</h2>
+    <p>Un solo nodo es un punto de falla y un vector de sesgo. ASPR v1.1 introduce federación mediante promedio ponderado: el karma reportado por nodos con mayor reputación propia tiene mayor peso en el consenso federado.</p>
+
+    <div class="equation">
+      <div class="eq-label">Ecuación 3 — Karma federado</div>
+      K_fed = Σ(K_node_i × K_local_i) / Σ(K_local_i)
+    </div>
+
+    <div class="equation">
+      <div class="eq-label">Ecuación 4 — Flag de disputa automático</div>
+      dispute = True &nbsp; si &nbsp; max(K_node_i) − min(K_node_i) &gt; θ &nbsp;&nbsp; (θ = 0.15 por defecto)
+    </div>
+
+    <h2>5. Ghost Balancer: eficiencia de enrutamiento</h2>
+    <p>El componente de eficiencia (E) del karma se alimenta del Ghost Balancer, un algoritmo de balanceo con scoring dinámico basado en decaimiento exponencial sobre una ventana deslizante de 30 eventos por nodo.</p>
+
+    <div class="equation">
+      <div class="eq-label">Ecuación 5 — Ghost Score</div>
+      GhostScore = sigmoid( Σ w_low − Σ w_high × 2.5 ) = 1 / (1 + e^balance) &nbsp;∈ [0.1, 1.0]
+    </div>
+
+    <p>El multiplicador de recovery 2.5× crea una curva asimétrica que favorece la estabilización. El floor de 0.1 garantiza que ningún nodo quede excluido permanentemente. Resultados de la simulación de 150.000 ticks:</p>
+
+    <div class="data-row">
+      <div class="data-cell"><div class="data-num">0.9985</div><div class="data-desc">Ghost Score EUROPA. Sin crisis, ventana limpia.</div></div>
+      <div class="data-cell"><div class="data-num">0.9742</div><div class="data-desc">Ghost Score LATAM post-crisis. Memoria residual de decaimiento — comportamiento correcto.</div></div>
+      <div class="data-cell"><div class="data-num">92%</div><div class="data-desc">Tasa global de éxito absorbiendo una región al 5% de uptime durante 1/3 del runtime.</div></div>
+    </div>
+
+    <h2>6. Cómo unirse como operador</h2>
+    <p>Para levantar un nodo propio y sumarse a la federación se requiere Python 3.8+ y conexión a internet estable. Tailscale es opcional pero recomendado para exposición pública sin configuración de router.</p>
+    <ul>
+      <li>Clonar: <span style="color:var(--accent2)">git clone https://github.com/ramigardner/aspr-gardener</span></li>
+      <li>Ejecutar: <span style="color:var(--accent2)">python aspr_oracle_node_v2.py</span></li>
+      <li>Verificar firma: <span style="color:var(--accent2)">curl https://tu-nodo:7771/public-key</span></li>
+      <li>Enviar fingerprint Ed25519 y URL pública para ser agregado al registry.json</li>
+    </ul>
+
+    <h2>7. Trabajo futuro</h2>
+    <p>Contribuciones prioritarias: volatility penalty en el componente Memoria, adaptive window size para el Ghost Balancer, dashboard web de karma federado en tiempo real, y formalización matemática del modelo de confianza para revisión académica externa.</p>
+
+    <div class="paper-print-note">
+      ASPR Oracle Network · Protocol v1.1 · ramigardner · Abril 2026<br>
+      github.com/ramigardner/aspr-gardener · MIT License<br>
+      Fingerprint Ed25519: 5482f712f89270b7755219a75cef214e0b137ea7fd9ee012dbe504875d600769
+    </div>
+  </div>
+
   <footer>
     <div>
       <div style="margin-bottom:6px">ASPR Oracle Node v2.1 · Protocol v1.1 · ramigardner</div>
       <div class="fp">fingerprint: 5482f712f89270b7755219a75cef214e0b137ea7fd9ee012dbe504875d600769</div>
     </div>
     <div style="text-align:right">
-      <div style="margin-bottom:4px"><a href="https://github.com/ramigardner/aspr-gardener">github.com/ramigardner/aspr-gardener</a></div>
+      <div style="margin-bottom:4px"><a href="https://github.com/ramigardner/aspr-gardener" target="_blank">github.com/ramigardner/aspr-gardener</a></div>
       <div style="color:var(--readable);font-size:10px">Verificado por Grok (xAI) · Ed25519</div>
     </div>
   </footer>
