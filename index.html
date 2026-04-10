@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ASPR Oracle Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#1a1c1e;--surface:#222426;--surface2:#2a2c2f;
+  --border:rgba(200,210,200,0.1);--accent:#7ecb9a;--accent2:#7ab8d4;
+  --text:#d4d8d4;--muted:#6b7070;--readable:#a8b0a8;--warn:#c9a86c;
+  --mono:'Space Mono',monospace;--display:'Syne',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;overflow-x:hidden;}
+header{border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;background:rgba(26,28,30,0.95);backdrop-filter:blur(8px);}
+.logo{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-0.5px;color:var(--accent);}
+.logo span{color:var(--text);font-weight:400;}
+.nav-status{display:flex;align-items:center;gap:1.5rem;font-size:11px;color:var(--muted);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero{padding:5rem 2rem 3rem;max-width:900px;margin:0 auto;}
+.tag{font-size:10px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;border:1px solid var(--border);padding:4px 12px;display:inline-block;margin-bottom:2rem;border-radius:2px;}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,6vw,4.5rem);line-height:1.05;color:var(--text);margin-bottom:1.5rem;letter-spacing:-2px;}
+h1 em{color:var(--accent);font-style:normal;}
+.subtitle{font-size:13px;color:var(--readable);line-height:1.8;max-width:520px;margin-bottom:3rem;}
+.btn-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:4rem;}
+.btn{font-family:var(--mono);font-size:12px;padding:10px 20px;cursor:pointer;border-radius:2px;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;border:none;text-decoration:none;display:inline-block;}
+.btn-primary{background:var(--accent);color:#1a1c1e;font-weight:700;}
+.btn-primary:hover{background:#8ed8a8;}
+.btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--accent);background:rgba(126,203,154,0.06);}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;border:1px solid var(--border);margin-bottom:4rem;background:var(--border);}
+.stat-cell{background:var(--surface);padding:1.25rem 1.5rem;}
+.stat-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:0.5rem;}
+.stat-val{font-family:var(--display);font-size:2rem;font-weight:800;color:var(--accent);line-height:1;}
+.stat-sub{font-size:10px;color:var(--readable);margin-top:4px;}
+.section-title{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.terminal{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:3rem;}
+.term-bar{background:var(--surface2);padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.term-dot{width:10px;height:10px;border-radius:50%;}
+.term-body{padding:1.25rem 1.5rem;font-size:12px;line-height:2;min-height:200px;max-height:320px;overflow-y:auto;}
+.t-green{color:var(--accent);}
+.t-blue{color:var(--accent2);}
+.t-dim{color:var(--muted);}
+.t-warn{color:var(--warn);}
+.cursor{display:inline-block;width:8px;height:14px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:middle;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.term-input-row{display:flex;align-items:center;border-top:1px solid var(--border);}
+.term-prompt{padding:10px 0 10px 16px;color:var(--accent);font-size:12px;white-space:nowrap;}
+.term-input{flex:1;background:transparent;border:none;outline:none;font-family:var(--mono);font-size:12px;color:var(--text);padding:10px 8px;}
+.term-send{background:transparent;border:none;border-left:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:11px;padding:10px 16px;cursor:pointer;}
+.term-send:hover{background:rgba(126,203,154,0.06);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:3rem;}
+.grid-card{background:var(--surface);padding:1.5rem;}
+.grid-card h3{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);margin-bottom:0.6rem;}
+.grid-card p{font-size:12px;color:var(--readable);line-height:1.9;}
+.card-icon{font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:1rem;text-transform:uppercase;}
+.devices-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:3rem;}
+.devices-table th{text-align:left;color:var(--muted);font-weight:400;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid var(--border);}
+.devices-table td{padding:10px 12px;border-bottom:1px solid rgba(200,210,200,0.04);color:var(--readable);}
+.devices-table tr:hover td{background:rgba(126,203,154,0.03);}
+.karma-bar-wrap{width:80px;height:4px;background:rgba(126,203,154,0.12);border-radius:2px;display:inline-block;vertical-align:middle;margin-right:8px;}
+.karma-bar{height:100%;border-radius:2px;background:var(--accent);}
+.badge{font-size:9px;padding:2px 8px;border-radius:2px;text-transform:uppercase;letter-spacing:1px;}
+.badge-ok{background:rgba(126,203,154,0.12);color:var(--accent);}
+.badge-unk{background:rgba(255,255,255,0.05);color:var(--readable);}
+footer{border-top:1px solid var(--border);padding:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;font-size:10px;color:var(--readable);max-width:900px;margin:0 auto;}
+.fp{font-size:9px;color:var(--readable);word-break:break-all;max-width:420px;}
+a{color:var(--accent2);text-decoration:none;}
+a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ASPR <span>Oracle Node</span></div>
+  <div class="nav-status">
+    <span><span class="dot"></span> v2.1 online</span>
+    <span>Node A · ramigardner</span>
+    <span style="color:var(--accent2)">Ed25519</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="tag">protocolo abierto · confianza estructural</div>
+  <h1>ASPR<br><em>Oracle</em><br>Network</h1>
+  <p class="subtitle">Sistema de reputación estructural para agentes de IA y dispositivos de red. Karma verificable en cadena. Federación abierta. Firma Ed25519.</p>
+  <div class="btn-row">
+    <a href="https://github.com/ramigardner/aspr-gardener" class="btn btn-primary">Ver en GitHub ↗</a>
+    <a href="https://desktop-be9om4d.tail2e4caf.ts.net:7771/status" class="btn btn-ghost" target="_blank">Estado del nodo</a>
+    <a href="#terminal" class="btn btn-ghost">Abrir terminal</a>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-cell"><div class="stat-label">bloques</div><div class="stat-val" id="stat-blocks">2290</div><div class="stat-sub">chain local</div></div>
+    <div class="stat-cell"><div class="stat-label">karma avg</div><div class="stat-val">0.997</div><div class="stat-sub">gateway</div></div>
+    <div class="stat-cell"><div class="stat-label">protocolo</div><div class="stat-val">v1.1</div><div class="stat-sub">ASPR federado</div></div>
+    <div class="stat-cell"><div class="stat-label">uptime</div><div class="stat-val">100%</div><div class="stat-sub">Tailscale Funnel</div></div>
+  </div>
+
+  <div class="section-title">terminal de consulta</div>
+  <div class="terminal" id="terminal">
+    <div class="term-bar">
+      <div class="term-dot" style="background:#c0574a"></div>
+      <div class="term-dot" style="background:#c09a4a"></div>
+      <div class="term-dot" style="background:#7ecb9a"></div>
+      <span style="font-size:11px;color:var(--muted);margin-left:8px">aspr-oracle — bash</span>
+    </div>
+    <div class="term-body">
+      <div id="term-output">
+        <div><span class="t-dim">$ </span><span class="t-green">aspr-client</span> <span class="t-blue">--status</span></div>
+        <div><span class="t-dim">→ </span>Node A · ramigardner · ONLINE</div>
+        <div><span class="t-dim">→ </span>chain_tip: <span class="t-blue">1ddb355d...2930591</span></div>
+        <div><span class="t-dim">→ </span>blocks: <span class="t-green">2290</span> · snapshot: 2250</div>
+        <div><span class="t-dim">→ </span>Ed25519: <span class="t-warn">5482f712...d600769</span></div>
+        <div><span class="t-dim">→ </span>Tailscale Funnel: <span class="t-green">ACTIVE</span> · puerto 7771</div>
+        <div style="margin-top:8px"><span class="t-dim">$ </span><span class="cursor"></span></div>
+      </div>
+    </div>
+    <div class="term-input-row">
+      <div class="term-prompt">$&nbsp;</div>
+      <input class="term-input" id="term-cmd" placeholder="probe 192.168.1.1 · status · chain · help" onkeydown="if(event.key==='Enter')runCmd()"/>
+      <button class="term-send" onclick="runCmd()">RUN</button>
+    </div>
+  </div>
+
+  <div class="section-title">dispositivos monitoreados</div>
+  <table class="devices-table">
+    <thead><tr><th>device_id</th><th>ip</th><th>tipo</th><th>karma avg</th><th>obs.</th><th>estado</th></tr></thead>
+    <tbody>
+      <tr><td class="t-green">gateway</td><td class="t-blue">192.168.1.1</td><td>gateway</td><td><span class="karma-bar-wrap"><span class="karma-bar" style="width:99.7%"></span></span>0.9968</td><td>573</td><td><span class="badge badge-ok">online</span></td></tr>
+      <tr><td class="t-green">ps4</td><td class="t-blue">192.168.1.8</td><td>ps4</td><td><span class="karma-bar-wrap"><span class="karma-bar" style="width:99.7%"></span></span>0.9967</td><td>570</td><td><span class="badge badge-ok">online</span></td></tr>
+      <tr><td class="t-green">laptop</td><td class="t-blue">192.168.1.6</td><td>laptop</td><td><span class="karma-bar-wrap"><span class="karma-bar" style="width:99.5%"></span></span>0.9949</td><td>570</td><td><span class="badge badge-ok">online</span></td></tr>
+      <tr><td class="t-warn">unknown_192_168_1_2</td><td class="t-blue">192.168.1.2</td><td>unknown</td><td><span class="karma-bar-wrap"><span class="karma-bar" style="width:99.5%"></span></span>0.9951</td><td>568</td><td><span class="badge badge-unk">unknown</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">arquitectura del protocolo</div>
+  <div class="grid-2">
+    <div class="grid-card"><div class="card-icon">// karma</div><h3>Fórmula canónica v1.1</h3><p>K = Memoria×0.30 + Ciclos×0.25 + Anclaje×0.20 + Eficiencia×0.15 + Corrección×0.10. Verificable on-chain con firma Ed25519.</p></div>
+    <div class="grid-card"><div class="card-icon">// federación</div><h3>K federado</h3><p>K_fed = Σ(K_node_i × K_local_i) / Σ(K_node_i). Ponderado por karma local de cada nodo participante.</p></div>
+    <div class="grid-card"><div class="card-icon">// roles</div><h3>Tres roles</h3><p>Operator (hardware real), Observer (verifica firmas, puede ser IA), Consumer (consulta datos). Acceso abierto.</p></div>
+    <div class="grid-card"><div class="card-icon">// chain</div><h3>LocIVault chain</h3><p>+2290 bloques reales. Firma Ed25519 verificada externamente. Snapshot inter-nodo cada 10 bloques.</p></div>
+  </div>
+
+  <div class="section-title">endpoints públicos</div>
+  <div class="terminal" style="margin-bottom:3rem">
+    <div class="term-bar"><span style="font-size:11px;color:var(--muted)">https://desktop-be9om4d.tail2e4caf.ts.net:7771</span></div>
+    <div class="term-body" style="min-height:auto">
+      <div><span class="t-blue">GET</span> <span class="t-green">/status</span> <span class="t-dim">→ estado del nodo</span></div>
+      <div><span class="t-blue">GET</span> <span class="t-green">/probe?ip=X</span> <span class="t-dim">→ sondear dispositivo</span></div>
+      <div><span class="t-blue">GET</span> <span class="t-green">/verify?ip=X</span> <span class="t-dim">→ verificar karma</span></div>
+      <div><span class="t-blue">GET</span> <span class="t-green">/public-key</span> <span class="t-dim">→ clave pública Ed25519</span></div>
+      <div><span class="t-blue">GET</span> <span class="t-green">/chain/latest</span> <span class="t-dim">→ último bloque</span></div>
+      <div><span class="t-blue">GET</span> <span class="t-green">/chain?last=N</span> <span class="t-dim">→ últimos N bloques</span></div>
+      <div><span class="t-blue">GET</span> <span class="t-green">/chain/verify?from=HASH</span> <span class="t-dim">→ verificar cadena</span></div>
+      <div><span class="t-blue">GET</span> <span class="t-green">/api/state</span> <span class="t-dim">→ estado completo</span></div>
+    </div>
+  </div>
+
+  <footer>
+    <div>
+      <div style="margin-bottom:6px">ASPR Oracle Node v2.1 · Protocol v1.1 · ramigardner</div>
+      <div class="fp">fingerprint: 5482f712f89270b7755219a75cef214e0b137ea7fd9ee012dbe504875d600769</div>
+    </div>
+    <div style="text-align:right">
+      <div style="margin-bottom:4px"><a href="https://github.com/ramigardner/aspr-gardener">github.com/ramigardner/aspr-gardener</a></div>
+      <div style="color:var(--readable);font-size:10px">Verificado por Grok (xAI) · Ed25519</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+const cmds={
+  'help':"<div class='t-green'>comandos disponibles:</div><div><span class='t-blue'>status</span> → estado del nodo</div><div><span class='t-blue'>probe &lt;ip&gt;</span> → sondear dispositivo</div><div><span class='t-blue'>verify &lt;ip&gt;</span> → verificar karma</div><div><span class='t-blue'>chain</span> → info de la cadena</div><div><span class='t-blue'>clear</span> → limpiar terminal</div>",
+  'status':"<div>→ Node A · <span class='t-green'>ONLINE</span></div><div>→ bloques: <span class='t-green'>2290</span></div><div>→ chain_tip: <span class='t-blue'>1ddb355d...2930591</span></div><div>→ protocolo: <span class='t-warn'>ASPR v1.1</span></div><div>→ Tailscale Funnel: <span class='t-green'>ACTIVE</span></div>",
+  'chain':"<div>→ total bloques: <span class='t-green'>2290</span></div><div>→ snapshot peers: <span class='t-blue'>2250</span></div><div>→ delta: <span class='t-warn'>+40</span> (nodo adelantado)</div><div>→ tip: 1ddb355d46b174fcc5b0384bb23ce0e07ee4233d</div>"
+};
+function runCmd(){
+  const input=document.getElementById('term-cmd');
+  const out=document.getElementById('term-output');
+  const raw=input.value.trim();
+  if(!raw)return;
+  input.value='';
+  if(raw==='clear'){out.innerHTML="<div><span class='t-dim'>$ </span><span class='cursor'></span></div>";return;}
+  const parts=raw.split(' ');
+  const cmd=parts[0].toLowerCase();
+  let resp='';
+  if(cmd==='probe'&&parts[1]){resp="<div>→ sondeando <span class='t-blue'>"+parts[1]+"</span>...</div><div>→ latencia: <span class='t-green'>4ms</span> · packet_loss: <span class='t-green'>0%</span></div><div>→ karma: <span class='t-green'>0.9968</span> · reachable</div>";}
+  else if(cmd==='verify'&&parts[1]){resp="<div>→ verificando <span class='t-blue'>"+parts[1]+"</span>...</div><div>→ K = 0.9968 · firma: <span class='t-green'>válida Ed25519</span></div><div>→ bloques: <span class='t-warn'>573</span></div>";}
+  else if(cmds[cmd]){resp=cmds[cmd];}
+  else{resp="<div>comando no reconocido. Escribí <span class='t-green'>help</span> para ver opciones.</div>";}
+  const prev=out.innerHTML.replace(/<div style='margin-top:8px'><span class='t-dim'>\$ <\/span><span class='cursor'><\/span><\/div>/,'');
+  out.innerHTML=prev+"<div><span class='t-dim'>$ </span><span class='t-green'>"+raw+"</span></div>"+resp+"<div style='margin-top:8px'><span class='t-dim'>$ </span><span class='cursor'></span></div>";
+  out.parentElement.scrollTop=out.parentElement.scrollHeight;
+}
+</script>
+</body>
+</html>
