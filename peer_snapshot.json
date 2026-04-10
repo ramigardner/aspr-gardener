@@ -1,0 +1,7 @@
+{
+  "snapshot_type": "peer_snapshot",
+  "total_blocks": 2280,
+  "chain_tip": "ac4d152799672eba7d9bcfc392b91201b9b4b1d8bc040992b7f325e16b74189b",
+  "prev_hash": "d8923b4c3fa3d7d34c3645bd3b230b6385d50f19abeecf4c8c2b0a62029d8862",
+  "snapshot_timestamp": "2026-04-10T14:13:59.183991+00:00"
+}
