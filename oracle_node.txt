@@ -1,0 +1,7 @@
+Lo que se modificó respecto a v2.1 original:
+FIX #1 — Flush en cada write → write() ahora llama _flush_recent() siempre, no solo cada 10 bloques. Si el proceso se cae, no perdés bloques.
+FIX #2 — verify_signature no muta el dict → Hace block_copy = dict(block) internamente y trabaja sobre esa copia. El bloque original queda intacto.
+FIX #3 — Pings en paralelo → _observe_cycle() usa ThreadPoolExecutor con as_completed(). Con 4 dispositivos, el ciclo ahora dura lo que tarda el más lento (en vez de sumar todos).
+FIX #4 — Chain partida en dos archivos → chain_archive.jsonl es append-only (nunca se reescribe entero). chain_recent.json mantiene los últimos 500 bloques. La primera vez que arranca migra automáticamente tu chain.json actual, así que no perdés nada.
+FIX #5 — /federated no bloquea el servidor → Corre en thread separado con timeout de 30 segundos. Si los nodos externos tardan mucho, devuelve 504 en vez de congelar todo.
+FIX #6 — Caché del registry → load_registry() cachea el JSON de GitHub por 60 segundos. Así no descarga en cada llamada a /federated.
