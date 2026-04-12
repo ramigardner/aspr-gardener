@@ -604,6 +604,7 @@
     <a href="#query">Query</a>
     <a href="#protocol">Protocol</a>
     <a href="#paper">Paper</a>
+    <a href="#kidslab" style="color:var(--accent);opacity:.7" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">🧪 Kids Lab</a>
   </nav>
   <div class="node-badge">
     <div class="dot" id="hdr-dot"></div>
@@ -830,6 +831,50 @@
   <div class="formula">git clone https://github.com/ramigardner/aspr-gardener
 python aspr_oracle_node_v2.py
 curl https://your-node:7771/public-key</div>
+
+  <!-- APÉNDICE KIDSLAB -->
+  <div id="kidslab" style="margin-top:3rem;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--bg2);">
+    <div style="padding:.65rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);">// appendix · kidslab</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.08em;">oracle kids · educational module</span>
+    </div>
+    <div style="padding:1.75rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center;">
+      <div>
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.75rem;">6. Educational Appendix — Oracle Kids: Hackers vs Nerds</div>
+        <p style="font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:2;margin:0;">
+          The ASPR Oracle Node v2.0 includes an educational appendix aimed at introducing
+          children and teenagers to computational thinking through competitive gameplay.
+          <br><br>
+          <span style="color:var(--text)">Oracle Kids</span> is a two-player PvP game where participants race to solve
+          Logo-language puzzles — drawing geometric figures with simple commands in Spanish —
+          while learning the core concepts behind the ASPR protocol: block verification,
+          karma formulas, hash integrity, and Ed25519 signatures, presented as game mechanics.
+          <br><br>
+          Role assignment is randomised per level, ensuring both players experience
+          both the <span style="color:var(--accent)">Hacker</span> and <span style="color:var(--accent)">Nerd</span> perspectives.
+          A persistent pet companion tracks individual progress across role changes.
+          <br><br>
+          <span style="color:var(--text-dim);font-size:11px;">
+            Stack: Python 3.12 · Pygame · asyncio TCP · numpy (8-bit audio synthesis)<br>
+            Platform: PC / Laptop · LAN + online via Tailscale · Port 9999
+          </span>
+        </p>
+      </div>
+      <a href="kidslab_splash.html"
+         style="display:flex;flex-direction:column;align-items:center;gap:12px;text-decoration:none;
+                padding:1.25rem 1.5rem;border:1px solid var(--border);border-radius:6px;
+                background:var(--bg3);transition:all .2s;min-width:130px;cursor:pointer;"
+         onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(0,229,255,.04)';this.querySelector('.ke-l').style.color='var(--accent)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg3)';this.querySelector('.ke-l').style.color='var(--text-dim)'">
+        <span style="font-size:26px;letter-spacing:8px;line-height:1">🐸🐸</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;">HvN · S01</span>
+        <span class="ke-l" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;transition:color .2s;text-align:center;">
+          entrar al<br>kids lab ↗
+        </span>
+      </a>
+    </div>
+  </div>
+
 </section>
 
 <!-- SUPPORT -->
