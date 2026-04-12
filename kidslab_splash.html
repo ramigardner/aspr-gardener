@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧪 KidsLab — Oracle Kids</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Press+Start+2P&display=swap');
+
+:root {
+  --c64-bg:      #1010a0;
+  --c64-dark:    #0808601;
+  --c64-blue:    #4040e0;
+  --c64-cyan:    #54ffff;
+  --c64-yellow:  #f0f050;
+  --c64-white:   #fffff0;
+  --c64-green:   #70ff70;
+  --c64-red:     #ff5050;
+  --c64-grey:    #8080c0;
+  --c64-orange:  #e06020;
+  --pixel:       'Share Tech Mono', monospace;
+  --title:       'Press Start 2P', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  font-family: var(--pixel);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  cursor: none;
+}
+
+/* ── CURSOR RANITA ────────────────────────────────────────────── */
+.frog-cursor {
+  position: fixed;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 0.05s;
+}
+
+/* ── PANTALLA DE CARGA ─────────────────────────────────────────── */
+#screen-boot {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.boot-inner {
+  width: min(700px, 95vw);
+}
+
+.boot-line {
+  font-family: var(--pixel);
+  font-size: clamp(10px, 1.6vw, 14px);
+  color: var(--c64-cyan);
+  line-height: 1.8;
+  opacity: 0;
+  white-space: pre;
+}
+.boot-line.show { opacity: 1; }
+.boot-line.yellow { color: var(--c64-yellow); }
+.boot-line.white  { color: var(--c64-white); }
+.boot-line.green  { color: var(--c64-green); }
+.boot-line.grey   { color: var(--c64-grey); }
+.boot-line.red    { color: var(--c64-red); }
+
+.boot-cursor {
+  display: inline-block;
+  width: 10px;
+  height: 16px;
+  background: var(--c64-cyan);
+  animation: blink 0.6s step-end infinite;
+  vertical-align: bottom;
+  margin-left: 2px;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── BARRA DE CARGA ───────────────────────────────────────────── */
+.load-bar-wrap {
+  margin-top: 20px;
+  border: 2px solid var(--c64-cyan);
+  padding: 3px;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.load-bar-wrap.show { opacity: 1; }
+.load-bar-fill {
+  height: 16px;
+  background: var(--c64-cyan);
+  width: 0%;
+  transition: width 0.08s linear;
+  position: relative;
+  overflow: hidden;
+}
+.load-bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px, transparent 8px,
+    rgba(0,0,0,0.3) 8px, rgba(0,0,0,0.3) 10px
+  );
+}
+.load-bar-label {
+  font-family: var(--pixel);
+  font-size: 11px;
+  color: var(--c64-grey);
+  margin-top: 6px;
+  text-align: right;
+}
+
+/* ── PANTALLA PRINCIPAL C64 ───────────────────────────────────── */
+#screen-main {
+  position: absolute;
+  inset: 0;
+  background: var(--c64-bg);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Grid de fondo */
+#screen-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(80,80,255,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80,80,255,0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+/* Scanlines */
+#screen-main::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.08) 3px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* ── HEADER ───────────────────────────────────────────────────── */
+.main-header {
+  width: 100%;
+  background: #000;
+  border-bottom: 3px solid var(--c64-cyan);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 10;
+}
+
+.header-brand {
+  font-family: var(--pixel);
+  font-size: clamp(9px, 1.2vw, 13px);
+  color: var(--c64-grey);
+  display: flex;
+  gap: 24px;
+}
+.header-brand span { color: var(--c64-cyan); }
+
+.header-title {
+  font-family: var(--title);
+  font-size: clamp(8px, 1.5vw, 13px);
+  color: var(--c64-yellow);
+  text-shadow: 2px 2px 0 #a08000;
+  letter-spacing: 2px;
+}
+
+.header-right {
+  font-family: var(--pixel);
+  font-size: 11px;
+  color: var(--c64-green);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dot-blink {
+  width: 8px; height: 8px;
+  background: var(--c64-green);
+  border-radius: 50%;
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+}
+
+/* ── ARENA CENTRAL ────────────────────────────────────────────── */
+.arena {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 20px;
+}
+
+/* Título PROXXIMAMENTE */
+.coming-soon-title {
+  font-family: var(--title);
+  font-size: clamp(8px, 1.8vw, 16px);
+  color: var(--c64-grey);
+  letter-spacing: 4px;
+  margin-bottom: 30px;
+  animation: flicker 3s infinite;
+}
+
+@keyframes flicker {
+  0%,95%,100%{opacity:1} 96%{opacity:0.3} 97%{opacity:1} 98%{opacity:0.2}
+}
+
+/* ── ESCENA VS ────────────────────────────────────────────────── */
+.vs-scene {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 5vw, 80px);
+  width: 100%;
+  max-width: 900px;
+  position: relative;
+}
+
+/* ── PERSONAJE ────────────────────────────────────────────────── */
+.character {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.char-name-plate {
+  font-family: var(--title);
+  font-size: clamp(7px, 1.2vw, 11px);
+  padding: 6px 14px;
+  border: 2px solid currentColor;
+  letter-spacing: 2px;
+}
+.char-name-plate.hacker { color: var(--c64-red); border-color: var(--c64-red); }
+.char-name-plate.nerd   { color: var(--c64-cyan); border-color: var(--c64-cyan); }
+
+/* Canvas pixel-art de la rana */
+.frog-canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.char-title {
+  font-family: var(--pixel);
+  font-size: clamp(8px, 1.1vw, 12px);
+  text-align: center;
+  line-height: 1.6;
+}
+.char-title.hacker { color: var(--c64-red); }
+.char-title.nerd   { color: var(--c64-cyan); }
+
+/* Stats debajo del personaje */
+.char-stats {
+  font-family: var(--pixel);
+  font-size: 10px;
+  color: var(--c64-grey);
+  text-align: center;
+  line-height: 1.8;
+}
+
+/* ── VS BADGE ─────────────────────────────────────────────────── */
+.vs-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.vs-text {
+  font-family: var(--title);
+  font-size: clamp(28px, 6vw, 64px);
+  color: var(--c64-yellow);
+  text-shadow:
+    4px 4px 0 #806000,
+    -2px -2px 0 #a08000;
+  animation: vs-pulse 1.5s ease-in-out infinite alternate;
+  line-height: 1;
+}
+
+@keyframes vs-pulse {
+  from { transform: scale(1); text-shadow: 4px 4px 0 #806000, -2px -2px 0 #a08000; }
+  to   { transform: scale(1.08); text-shadow: 6px 6px 0 #806000, 0 0 20px var(--c64-yellow); }
+}
+
+.vs-sparks {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+}
+
+/* ── PÍXELES FLOTANTES ───────────────────────────────────────── */
+.pixel-float {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--c64-cyan);
+  animation: float-pixel linear infinite;
+  opacity: 0.4;
+}
+
+@keyframes float-pixel {
+  from { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  to   { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
+
+/* ── BARRA INFERIOR ───────────────────────────────────────────── */
+.bottom-bar {
+  width: 100%;
+  background: #000;
+  border-top: 3px solid var(--c64-cyan);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 10;
+}
+
+/* Botón KidsLab */
+.btn-kidslab {
+  font-family: var(--title);
+  font-size: clamp(7px, 1.1vw, 10px);
+  background: #000;
+  color: var(--c64-yellow);
+  border: 2px solid var(--c64-yellow);
+  padding: 10px 20px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  position: relative;
+  transition: all 0.1s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 3px 3px 0 #806000;
+}
+.btn-kidslab:hover {
+  background: var(--c64-yellow);
+  color: #000;
+  box-shadow: 1px 1px 0 #806000;
+  transform: translate(2px, 2px);
+}
+.btn-kidslab::before {
+  content: '🧪';
+  font-size: 16px;
+}
+
+/* Ticker de noticias */
+.ticker-wrap {
+  flex: 1;
+  overflow: hidden;
+  margin: 0 20px;
+  border: 1px solid var(--c64-grey);
+  padding: 4px 8px;
+}
+.ticker-text {
+  font-family: var(--pixel);
+  font-size: 10px;
+  color: var(--c64-green);
+  white-space: nowrap;
+  animation: ticker 22s linear infinite;
+  display: inline-block;
+}
+@keyframes ticker {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(-100%); }
+}
+
+.bottom-right {
+  font-family: var(--pixel);
+  font-size: 10px;
+  color: var(--c64-grey);
+  text-align: right;
+  line-height: 1.6;
+}
+
+/* ── EFECTO GLITCH ────────────────────────────────────────────── */
+@keyframes glitch {
+  0%   { clip-path: inset(0 0 95% 0); transform: translate(-3px,0); }
+  10%  { clip-path: inset(30% 0 50% 0); transform: translate(3px,0); }
+  20%  { clip-path: inset(70% 0 10% 0); transform: translate(-2px,0); }
+  30%  { clip-path: inset(10% 0 80% 0); transform: translate(2px,0); }
+  40%  { clip-path: inset(50% 0 30% 0); transform: translate(-3px,0); }
+  100% { clip-path: inset(0 0 95% 0); transform: translate(0,0); }
+}
+
+.glitch-layer {
+  position: absolute;
+  inset: 0;
+  color: var(--c64-red);
+  animation: glitch 4s step-end infinite;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ── MODAL PRÓXIMAMENTE ───────────────────────────────────────── */
+#modal-coming {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+#modal-coming.show { display: flex; }
+
+.modal-box {
+  border: 3px solid var(--c64-yellow);
+  background: #000;
+  padding: 30px 40px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(240,240,80,0.3);
+  animation: modal-in 0.2s ease-out;
+}
+@keyframes modal-in {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.modal-box h2 {
+  font-family: var(--title);
+  font-size: 13px;
+  color: var(--c64-yellow);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+.modal-box p {
+  font-family: var(--pixel);
+  font-size: 11px;
+  color: var(--c64-cyan);
+  line-height: 2;
+  margin-bottom: 16px;
+}
+.modal-box .modal-close {
+  font-family: var(--title);
+  font-size: 9px;
+  background: #000;
+  color: var(--c64-green);
+  border: 2px solid var(--c64-green);
+  padding: 10px 24px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  margin-top: 10px;
+  box-shadow: 2px 2px 0 #004000;
+}
+.modal-box .modal-close:hover {
+  background: var(--c64-green);
+  color: #000;
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor ranita -->
+<div class="frog-cursor" id="frogCursor">🐸</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANTALLA DE BOOT / CARGA
+═══════════════════════════════════════════════════════════════ -->
+<div id="screen-boot">
+  <div class="boot-inner" id="bootLines"></div>
+  <div class="boot-inner" style="margin-top:16px">
+    <div class="load-bar-wrap" id="loadBarWrap">
+      <div class="load-bar-fill" id="loadBarFill"></div>
+    </div>
+    <div class="load-bar-label" id="loadBarLabel">CARGANDO... 0%</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PANTALLA PRINCIPAL
+═══════════════════════════════════════════════════════════════ -->
+<div id="screen-main">
+
+  <!-- Header -->
+  <div class="main-header">
+    <div class="header-brand">
+      ASPR ORACLE NETWORK &nbsp;|&nbsp; <span>v2.0</span> &nbsp;|&nbsp; NODE ONLINE
+    </div>
+    <div class="header-title">★ ORACLE KIDS ★</div>
+    <div class="header-right">
+      <span class="dot-blink"></span> CONECTADO
+    </div>
+  </div>
+
+  <!-- Arena -->
+  <div class="arena">
+
+    <!-- Píxeles flotantes decorativos -->
+    <div id="pixelFloats"></div>
+
+    <div class="coming-soon-title">— PRÓXIMAMENTE —</div>
+
+    <!-- Escena VS -->
+    <div class="vs-scene">
+
+      <!-- HACKER FROG -->
+      <div class="character">
+        <div class="char-name-plate hacker">HACKER</div>
+        <canvas class="frog-canvas" id="frogHacker" width="120" height="140"></canvas>
+        <div class="char-title hacker">☠ DEBUG.EXE<br>Cazador de bugs</div>
+        <div class="char-stats">
+          PWR ████████░░ 80%<br>
+          KRM ██████░░░░ 60%<br>
+          BUG ∞∞∞∞∞∞∞∞∞∞
+        </div>
+      </div>
+
+      <!-- VS -->
+      <div class="vs-badge">
+        <div class="vs-text">VS</div>
+        <canvas id="sparksCanvas" width="120" height="120" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;"></canvas>
+      </div>
+
+      <!-- NERD FROG -->
+      <div class="character">
+        <div class="char-name-plate nerd">NERD</div>
+        <canvas class="frog-canvas" id="frogNerd" width="120" height="140"></canvas>
+        <div class="char-title nerd">🛡 PATCH.SYS<br>Verificador de red</div>
+        <div class="char-stats">
+          PWR ███████░░░ 70%<br>
+          KRM █████████░ 90%<br>
+          VRF ✓✓✓✓✓✓✓✓✓✓
+        </div>
+      </div>
+
+    </div><!-- /vs-scene -->
+
+    <!-- Subtexto -->
+    <div style="margin-top:28px;font-family:var(--pixel);font-size:11px;color:var(--c64-grey);text-align:center;line-height:2;">
+      TEMPORADA 1 &nbsp;·&nbsp; 4 NIVELES &nbsp;·&nbsp; LAN + ONLINE<br>
+      <span style="color:var(--c64-yellow)">★ ROL ALEATORIO POR NIVEL ★ MASCOTA PERSISTENTE ★</span>
+    </div>
+
+  </div><!-- /arena -->
+
+  <!-- Barra inferior -->
+  <div class="bottom-bar">
+
+    <button class="btn-kidslab" id="btnKidslab">
+      KIDS LAB
+    </button>
+
+    <div class="ticker-wrap">
+      <span class="ticker-text">
+        &nbsp;&nbsp;&nbsp;★ KIDSLAB — ORACLE KIDS: HACKERS VS NERDS EDITION &nbsp;·&nbsp;
+        APRENDE PROGRAMACIÓN CAZANDO BUGS CON DEBUG LA RANA &nbsp;·&nbsp;
+        ESTÉTICA COMMODORE 64 &nbsp;·&nbsp; PYTHON + PYGAME &nbsp;·&nbsp;
+        PRÓXIMAMENTE EN KIDSLAB.IO &nbsp;·&nbsp;
+        "1947: GRACE HOPPER ENCONTRÓ EL PRIMER BUG — UNA POLILLA REAL EN UNA COMPUTADORA" &nbsp;·&nbsp;
+        APRENDER JUGANDO, COMPETIR PENSANDO 🧪 &nbsp;&nbsp;&nbsp;
+      </span>
+    </div>
+
+    <div class="bottom-right">
+      ASPR ORACLE NODE v2.0<br>
+      🧪 KIDSLAB.IO
+    </div>
+
+  </div>
+
+</div><!-- /screen-main -->
+
+<!-- Modal próximamente -->
+<div id="modal-coming">
+  <div class="modal-box">
+    <h2>🧪 KIDSLAB<br>ORACLE KIDS</h2>
+    <p>
+      HACKERS VS NERDS EDITION<br>
+      ────────────────────────<br>
+      Debug 🐸 y Patch 🐸 se enfrentan<br>
+      en 4 niveles de código real.<br><br>
+      Aprendé Logo, lógica y<br>
+      pensamiento computacional<br>
+      sin darte cuenta.<br><br>
+      <span style="color:var(--c64-yellow)">ROL RANDOM · MASCOTA PROPIA<br>SONIDO 8-BIT · LAN + ONLINE</span>
+    </p>
+    <button class="modal-close" onclick="closeModal()">[ VOLVER ]</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CURSOR RANITA
+// ══════════════════════════════════════════════════════════════════
+const cursor = document.getElementById('frogCursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.addEventListener('mousedown', () => {
+  cursor.style.transform = 'translate(-50%,-50%) scale(0.7)';
+});
+document.addEventListener('mouseup', () => {
+  cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+});
+
+// ══════════════════════════════════════════════════════════════════
+// AUDIO — SÍNTESIS DE MÓDEM 56K
+// ══════════════════════════════════════════════════════════════════
+let audioCtx = null;
+
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playModem() {
+  initAudio();
+  const ctx = audioCtx;
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.18, ctx.currentTime);
+  master.connect(ctx.destination);
+
+  // Secuencia de tonos estilo módem 56k
+  const sequence = [
+    // [frecuencia, duracion_ms, tipo]
+    [1200, 300, 'sine'],
+    [2100, 200, 'sine'],
+    [1200, 150, 'square'],
+    [2400, 100, 'sawtooth'],
+    [1800, 80,  'square'],
+    [3600, 60,  'sawtooth'],
+    [2100, 80,  'sine'],
+    [1200, 60,  'square'],
+    // Handshake noise — tono descendente rápido
+    [4000, 40, 'sawtooth'],
+    [3500, 30, 'sawtooth'],
+    [3000, 30, 'sawtooth'],
+    [2500, 30, 'square'],
+    [2000, 30, 'square'],
+    [1500, 40, 'square'],
+    // Burst de datos
+    [2400, 20, 'square'],
+    [4800, 15, 'sawtooth'],
+    [2400, 20, 'square'],
+    [4800, 15, 'sawtooth'],
+    [2400, 20, 'square'],
+    [4800, 15, 'sawtooth'],
+    [2400, 20, 'square'],
+    // Conexión establecida
+    [800,  80, 'sine'],
+    [1200, 80, 'sine'],
+    [1600, 120,'sine'],
+    [2000, 200,'sine'],
+  ];
+
+  let t = ctx.currentTime + 0.05;
+  sequence.forEach(([freq, durMs, type]) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    // Vibrato rápido estilo módem
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 25 + Math.random() * 40;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 30 + Math.random() * 80;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    lfo.start(t);
+    lfo.stop(t + durMs/1000 + 0.01);
+
+    gain.gain.setValueAtTime(0.8, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + durMs/1000);
+    osc.connect(gain);
+    gain.connect(master);
+    osc.start(t);
+    osc.stop(t + durMs/1000 + 0.05);
+    t += durMs / 1000;
+  });
+
+  return t - ctx.currentTime; // duración total
+}
+
+function playBeep(freq=440, dur=80, type='square', vol=0.15) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const g   = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(vol, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur/1000);
+  osc.connect(g); g.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + dur/1000 + 0.05);
+}
+
+function playJingle() {
+  if (!audioCtx) return;
+  const notes = [
+    [523,100],[659,100],[784,100],[1047,200],
+    [784,80],[1047,300]
+  ];
+  let t = audioCtx.currentTime;
+  notes.forEach(([f,d]) => {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.value = f;
+    g.gain.setValueAtTime(0.12, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+d/1000);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t+d/1000+0.05);
+    t += d/1000;
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// BOOT SEQUENCE
+// ══════════════════════════════════════════════════════════════════
+const bootMessages = [
+  { text: '* * * KIDSLAB SYSTEM v1.0 * * *', cls: 'yellow', delay: 0 },
+  { text: '64K RAM SYSTEM  38911 BASIC BYTES FREE', cls: 'white', delay: 180 },
+  { text: '', cls: '', delay: 280 },
+  { text: 'ASPR ORACLE NODE v2.0 DETECTED', cls: 'green', delay: 400 },
+  { text: 'INITIALIZING KIDSLAB MODULE...', cls: 'cyan', delay: 700 },
+  { text: '', cls: '', delay: 900 },
+  { text: 'LOADING DEBUG.EXE ........... OK', cls: 'cyan', delay: 1100 },
+  { text: 'LOADING PATCH.SYS ........... OK', cls: 'cyan', delay: 1400 },
+  { text: 'LOADING PUZZLE ENGINE ....... OK', cls: 'cyan', delay: 1700 },
+  { text: 'LOADING SOUND CHIP SID ...... OK', cls: 'cyan', delay: 2000 },
+  { text: 'LOADING FROG SPRITES ........ OK', cls: 'cyan', delay: 2300 },
+  { text: '', cls: '', delay: 2600 },
+  { text: 'CONNECTING TO MODEM...', cls: 'yellow', delay: 2800 },
+  { text: '', cls: '', delay: 3000 },
+  { text: 'ATDT 5551947... (GRACE HOPPER WAS HERE)', cls: 'grey', delay: 3200 },
+  { text: '', cls: '', delay: 3800 },
+  { text: 'CONNECT 56600 BPS', cls: 'green', delay: 4200 },
+  { text: 'PROTOCOL: V.90 C64-TURBO', cls: 'green', delay: 4500 },
+  { text: '', cls: '', delay: 4700 },
+  { text: 'SYSTEM READY.', cls: 'yellow', delay: 5200 },
+];
+
+const bootContainer = document.getElementById('bootLines');
+const loadBarWrap   = document.getElementById('loadBarWrap');
+const loadBarFill   = document.getElementById('loadBarFill');
+const loadBarLabel  = document.getElementById('loadBarLabel');
+
+let modemStarted = false;
+
+function runBoot() {
+  // Primer click / touch para iniciar audio
+  document.addEventListener('click', initAudio, { once: true });
+  document.addEventListener('keydown', initAudio, { once: true });
+
+  bootMessages.forEach((msg, i) => {
+    setTimeout(() => {
+      const line = document.createElement('div');
+      line.className = 'boot-line ' + (msg.cls || '');
+      line.textContent = msg.text;
+      bootContainer.appendChild(line);
+      requestAnimationFrame(() => line.classList.add('show'));
+
+      // Sonido de módem en la línea correcta
+      if (msg.text.includes('MODEM') && !modemStarted) {
+        modemStarted = true;
+        setTimeout(() => {
+          initAudio();
+          playModem();
+        }, 400);
+      }
+
+      // Beeps para líneas OK
+      if (msg.text.includes('OK')) {
+        setTimeout(() => playBeep(1200, 60, 'square', 0.08), 200);
+      }
+
+    }, msg.delay);
+  });
+
+  // Barra de carga
+  setTimeout(() => {
+    loadBarWrap.classList.add('show');
+    animateBar();
+  }, 1100);
+
+  // Transición a pantalla principal
+  setTimeout(() => {
+    playJingle();
+    setTimeout(showMain, 600);
+  }, 6000);
+}
+
+function animateBar() {
+  let pct = 0;
+  const msgs = [
+    [0,   'CARGANDO SPRITES...'],
+    [20,  'COMPILANDO PUZZLES...'],
+    [40,  'SINTETIZANDO AUDIO 8-BIT...'],
+    [60,  'CONECTANDO AL NODO ASPR...'],
+    [80,  'ACTIVANDO RANITAS...'],
+    [95,  'CASI LISTO...'],
+    [100, 'LISTO!'],
+  ];
+  let msgIdx = 0;
+
+  const iv = setInterval(() => {
+    pct = Math.min(100, pct + 0.8);
+    loadBarFill.style.width = pct + '%';
+    loadBarLabel.textContent = msgs[msgIdx][1] + ' ' + Math.floor(pct) + '%';
+    if (msgIdx < msgs.length - 1 && pct >= msgs[msgIdx+1][0]) msgIdx++;
+    if (pct >= 100) clearInterval(iv);
+  }, 30);
+}
+
+function showMain() {
+  document.getElementById('screen-boot').style.transition = 'opacity 0.5s';
+  document.getElementById('screen-boot').style.opacity = '0';
+  setTimeout(() => {
+    document.getElementById('screen-boot').style.display = 'none';
+    const main = document.getElementById('screen-main');
+    main.style.display = 'flex';
+    main.style.opacity = '0';
+    main.style.transition = 'opacity 0.5s';
+    requestAnimationFrame(() => { main.style.opacity = '1'; });
+    startAnimations();
+  }, 500);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PIXEL ART DE LAS RANAS (Canvas)
+// ══════════════════════════════════════════════════════════════════
+function drawFrogHacker(canvas) {
+  const ctx = canvas.getContext('2d');
+  const S = 6; // tamaño de cada pixel
+  ctx.imageSmoothingEnabled = false;
+
+  // Paleta
+  const G  = '#50c050'; // verde cuerpo
+  const DG = '#208030'; // verde oscuro
+  const LG = '#80ff80'; // verde claro
+  const BK = '#000000';
+  const RD = '#ff4040'; // rojo ojos
+  const WH = '#ffffff';
+  const GY = '#808080';
+  const OR = '#ff8020'; // naranja capucha
+  const DB = '#101060'; // azul oscuro capucha
+
+  // Mapa de pixels [fila][col] — 18 cols x 22 filas
+  const px = (x,y,col) => { ctx.fillStyle=col; ctx.fillRect(x*S,y*S,S,S); };
+
+  // Cuerpo principal
+  // Cabeza
+  [[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],
+   [3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
+   [3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],
+   [3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5],
+  ].forEach(([x,y]) => px(x,y,G));
+
+  // Ojos rojos (hacker)
+  [[4,3],[5,3]].forEach(([x,y]) => px(x,y,RD));
+  [[9,3],[10,3]].forEach(([x,y]) => px(x,y,RD));
+  px(4,3,RD); px(5,3,RD); px(9,3,RD); px(10,3,RD);
+
+  // Boca maliciosa
+  px(5,5,DG); px(6,5,BK); px(7,5,BK); px(8,5,DG); px(9,5,DG);
+
+  // Cuerpo
+  [[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6],
+   [2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[12,7],
+   [2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],
+   [2,9],[3,9],[4,9],[5,9],[6,9],[7,9],[8,9],[9,9],[10,9],[11,9],[12,9],
+   [3,10],[4,10],[5,10],[6,10],[7,10],[8,10],[9,10],[10,10],[11,10],
+  ].forEach(([x,y]) => px(x,y,G));
+
+  // Patas
+  [[2,11],[3,11],[4,11],[9,11],[10,11],[11,11],
+   [1,12],[2,12],[3,12],[4,12],[10,12],[11,12],[12,12],
+   [1,13],[2,13],[3,13],[13,13],[12,13],[11,13],
+  ].forEach(([x,y]) => px(x,y,DG));
+
+  // ── CAPUCHA hacker (encima del cuerpo) ──
+  // Capuchón negro con borde naranja
+  [[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],
+   [3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[10,1],
+   [3,2],[10,2],
+  ].forEach(([x,y]) => px(x,y,DB));
+  // Borde naranja
+  [[4,0],[9,0]].forEach(([x,y]) => px(x,y,OR));
+  px(3,1,OR); px(10,1,OR);
+  // Sombra capucha sobre cara
+  px(3,3,DB); px(11,3,DB);
+
+  // Manitos
+  px(1,9,LG); px(2,9,LG); px(13,9,LG); px(12,9,LG);
+
+  // Skull en la panza
+  px(7,7,WH); px(8,7,WH);
+  px(6,8,WH); px(7,8,BK); px(8,8,BK); px(9,8,WH);
+  px(7,9,WH); px(8,9,WH);
+}
+
+function drawFrogNerd(canvas) {
+  const ctx = canvas.getContext('2d');
+  const S = 6;
+  ctx.imageSmoothingEnabled = false;
+
+  const G  = '#50c080';
+  const DG = '#208050';
+  const LG = '#90ffb0';
+  const BK = '#000000';
+  const BL = '#4080ff'; // azul ojos
+  const WH = '#ffffff';
+  const YL = '#f0f050'; // amarillo anteojos
+  const GY = '#a0a0a0';
+  const CY = '#50f0f0';
+
+  const px = (x,y,col) => { ctx.fillStyle=col; ctx.fillRect(x*S,y*S,S,S); };
+
+  // Cuerpo
+  [[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],
+   [3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
+   [3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],
+   [3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5],
+  ].forEach(([x,y]) => px(x,y,G));
+
+  // Ojos azules (nerd)
+  px(4,3,BL); px(5,3,BL); px(9,3,BL); px(10,3,BL);
+
+  // Anteojos (montura amarilla)
+  px(3,3,YL); px(6,3,YL); px(7,3,YL); px(11,3,YL);
+  px(3,4,YL); px(6,4,YL); px(7,4,YL); px(11,4,YL);
+  // Patillas
+  px(3,3,YL); px(11,3,YL);
+
+  // Boca amable
+  px(5,5,G); px(6,5,DG); px(7,5,DG); px(8,5,DG); px(9,5,G);
+
+  // Cuerpo
+  [[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6],
+   [2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[12,7],
+   [2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],
+   [2,9],[3,9],[4,9],[5,9],[6,9],[7,9],[8,9],[9,9],[10,9],[11,9],[12,9],
+   [3,10],[4,10],[5,10],[6,10],[7,10],[8,10],[9,10],[10,10],[11,10],
+  ].forEach(([x,y]) => px(x,y,G));
+
+  // Corbatín de datos
+  px(7,6,CY); px(7,7,CY); px(6,7,CY); px(8,7,CY);
+
+  // Patas
+  [[2,11],[3,11],[4,11],[9,11],[10,11],[11,11],
+   [1,12],[2,12],[3,12],[4,12],[10,12],[11,12],[12,12],
+   [1,13],[2,13],[3,13],[13,13],[12,13],[11,13],
+  ].forEach(([x,y]) => px(x,y,DG));
+
+  // Manitos con libro
+  px(1,9,LG); px(2,9,LG);
+  px(12,9,WH); px(13,9,WH); // libro blanco
+
+  // Casco / birrete académico
+  [[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],
+   [3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[10,1],
+   [2,1],[11,1],
+  ].forEach(([x,y]) => px(x,y,'#101040'));
+  // Borla amarilla
+  px(11,0,YL); px(12,1,YL);
+  // Línea cyan del casco
+  [4,5,6,7,8,9,10].forEach(x => px(x,1,CY));
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ANIMACIONES CONTINUAS
+// ══════════════════════════════════════════════════════════════════
+let animFrame = 0;
+let animT = 0;
+
+function startAnimations() {
+  // Dibujar ranas estáticas primero
+  drawFrogHacker(document.getElementById('frogHacker'));
+  drawFrogNerd(document.getElementById('frogNerd'));
+
+  // Píxeles flotantes
+  const floatContainer = document.getElementById('pixelFloats');
+  for (let i = 0; i < 20; i++) {
+    const el = document.createElement('div');
+    el.className = 'pixel-float';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.top  = (60 + Math.random() * 30) + 'vh';
+    el.style.animationDuration = (3 + Math.random() * 5) + 's';
+    el.style.animationDelay   = (Math.random() * 5) + 's';
+    el.style.background = ['#54ffff','#f0f050','#70ff70','#ff5050'][Math.floor(Math.random()*4)];
+    floatContainer.appendChild(el);
+  }
+
+  // Animación de ranas (salto periódico)
+  animateFrogs();
+
+  // Chispas del VS
+  animateSparks();
+}
+
+function animateFrogs() {
+  const hackerCanvas = document.getElementById('frogHacker');
+  const nerdCanvas   = document.getElementById('frogNerd');
+  let bobH = 0, bobN = 0;
+  let dirH = 1, dirN = -1;
+
+  setInterval(() => {
+    bobH += dirH * 2;
+    bobN += dirN * 2;
+    if (bobH > 8 || bobH < 0) dirH *= -1;
+    if (bobN > 8 || bobN < 0) dirN *= -1;
+    hackerCanvas.style.transform = `translateY(${bobH}px)`;
+    nerdCanvas.style.transform   = `translateY(${bobN}px)`;
+  }, 80);
+
+  // Salto ocasional
+  setInterval(() => {
+    if (Math.random() < 0.5) {
+      hackerCanvas.style.transition = 'transform 0.15s';
+      hackerCanvas.style.transform = 'translateY(-20px) scaleX(1.1)';
+      playBeep(800, 60, 'square', 0.06);
+      setTimeout(() => { hackerCanvas.style.transform = 'translateY(0)'; }, 200);
+      setTimeout(() => { hackerCanvas.style.transition = ''; }, 400);
+    } else {
+      nerdCanvas.style.transition = 'transform 0.15s';
+      nerdCanvas.style.transform = 'translateY(-20px) scaleX(1.1)';
+      playBeep(1200, 60, 'square', 0.06);
+      setTimeout(() => { nerdCanvas.style.transform = 'translateY(0)'; }, 200);
+      setTimeout(() => { nerdCanvas.style.transition = ''; }, 400);
+    }
+  }, 2200);
+}
+
+function animateSparks() {
+  const canvas = document.getElementById('sparksCanvas');
+  const ctx = canvas.getContext('2d');
+  const sparks = [];
+  const colors = ['#f0f050','#54ffff','#ff5050','#70ff70','#ffffff'];
+
+  function addSpark() {
+    sparks.push({
+      x: 60, y: 60,
+      vx: (Math.random()-0.5)*6,
+      vy: (Math.random()-0.5)*6,
+      life: 1,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      size: 2+Math.random()*3,
+    });
+  }
+
+  function loop() {
+    ctx.clearRect(0,0,120,120);
+    if (Math.random() < 0.4) addSpark();
+    for (let i = sparks.length-1; i >= 0; i--) {
+      const s = sparks[i];
+      s.x += s.vx; s.y += s.vy;
+      s.vy += 0.1;
+      s.life -= 0.04;
+      if (s.life <= 0) { sparks.splice(i,1); continue; }
+      ctx.globalAlpha = s.life;
+      ctx.fillStyle = s.color;
+      ctx.fillRect(s.x, s.y, s.size, s.size);
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// BOTÓN KIDSLAB
+// ══════════════════════════════════════════════════════════════════
+document.getElementById('btnKidslab').addEventListener('click', () => {
+  playBeep(440, 60, 'square', 0.1);
+  setTimeout(() => playBeep(880, 80, 'square', 0.1), 80);
+  document.getElementById('modal-coming').classList.add('show');
+});
+
+function closeModal() {
+  playBeep(330, 60, 'square', 0.08);
+  document.getElementById('modal-coming').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ARRANCAR
+// ══════════════════════════════════════════════════════════════════
+runBoot();
+</script>
+</body>
+</html>
