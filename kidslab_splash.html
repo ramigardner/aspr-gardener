@@ -427,6 +427,95 @@ body {
   opacity: 0.5;
 }
 
+/* ── MONITOR PIXEL-ART DEMO ───────────────────────────────────── */
+.demo-monitor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  position: relative;
+}
+.demo-monitor:hover .monitor-screen {
+  box-shadow: 0 0 14px var(--c64-green), inset 0 0 8px rgba(112,255,112,0.2);
+}
+.monitor-body {
+  background: #1a1a2e;
+  border: 3px solid #3a3a5e;
+  border-bottom: none;
+  padding: 5px 6px 4px;
+  position: relative;
+  width: 72px;
+  box-shadow: 2px 2px 0 #000, inset 1px 1px 0 #4a4a7e;
+}
+.monitor-screen {
+  background: #000814;
+  border: 2px solid #0a0a30;
+  width: 58px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 8px var(--c64-green), inset 0 0 6px rgba(112,255,112,0.1);
+  transition: box-shadow 0.2s;
+}
+.monitor-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.25) 2px, rgba(0,0,0,0.25) 3px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+.monitor-demo-text {
+  font-family: var(--title);
+  font-size: 8px;
+  color: var(--c64-green);
+  letter-spacing: 1px;
+  text-shadow: 0 0 6px var(--c64-green);
+  animation: demo-blink 1.4s step-end infinite;
+  position: relative;
+  z-index: 3;
+}
+@keyframes demo-blink {
+  0%,78%,100%{opacity:1} 82%{opacity:0.1} 86%{opacity:1} 92%{opacity:0.1}
+}
+.monitor-pixel {
+  position: absolute;
+  width: 3px; height: 3px;
+  background: var(--c64-green);
+  opacity: 0.4;
+}
+.monitor-pixel.tl { top:3px; left:3px; }
+.monitor-pixel.br { bottom:3px; right:3px; }
+.monitor-led {
+  position: absolute;
+  bottom: 5px; right: 7px;
+  width: 4px; height: 4px;
+  background: var(--c64-green);
+  border-radius: 50%;
+  animation: blink 2s step-end infinite;
+  box-shadow: 0 0 4px var(--c64-green);
+}
+.monitor-stand-neck {
+  width: 10px; height: 6px;
+  background: #1a1a2e;
+  border-left: 3px solid #3a3a5e;
+  border-right: 3px solid #3a3a5e;
+  margin: 0 auto;
+}
+.monitor-stand-base {
+  width: 40px; height: 5px;
+  background: #1a1a2e;
+  border: 3px solid #3a3a5e;
+  border-radius: 1px;
+}
+
 /* ── MODAL PRÓXIMAMENTE ───────────────────────────────────────── */
 #modal-coming {
   display: none;
@@ -438,6 +527,17 @@ body {
   justify-content: center;
 }
 #modal-coming.show { display: flex; }
+
+#modal-demo {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+#modal-demo.show { display: flex; }
 
 .modal-box {
   border: 3px solid var(--c64-yellow);
@@ -573,9 +673,23 @@ body {
   <!-- Barra inferior -->
   <div class="bottom-bar">
 
-    <button class="btn-kidslab" id="btnKidslab">
-      KIDS LAB
-    </button>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="demo-monitor" onclick="launchDemo()" title="Jugar demo">
+        <div class="monitor-body">
+          <div class="monitor-screen">
+            <span class="monitor-demo-text">DEMO</span>
+            <span class="monitor-pixel tl"></span>
+            <span class="monitor-pixel br"></span>
+          </div>
+          <div class="monitor-led"></div>
+        </div>
+        <div class="monitor-stand-neck"></div>
+        <div class="monitor-stand-base"></div>
+      </div>
+      <button class="btn-kidslab" id="btnKidslab">
+        KIDS LAB
+      </button>
+    </div>
 
     <div class="ticker-wrap">
       <span class="ticker-text">
@@ -612,6 +726,30 @@ body {
       <span style="color:var(--c64-yellow)">ROL RANDOM · MASCOTA PROPIA<br>SONIDO 8-BIT · LAN + ONLINE</span>
     </p>
     <button class="modal-close" onclick="closeModal()">[ VOLVER ]</button>
+  </div>
+</div>
+
+<!-- Modal DEMO -->
+<div id="modal-demo">
+  <div class="modal-box" style="border-color:var(--c64-green);box-shadow:0 0 40px rgba(112,255,112,0.3);">
+    <h2 style="color:var(--c64-green);">🧪 KIDSLAB DEMO<br>── DISPONIBLE ──</h2>
+    <p>
+      <span style="color:var(--c64-green);">ORACLE KIDS: HACKERS VS NERDS</span><br>
+      ────────────────────────────<br>
+      Descargá el archivo .py y correlo<br>
+      con Python + Pygame instalado.<br><br>
+      <span style="color:var(--c64-yellow);">Python 3.11 · Pygame 2.5 · numpy</span><br><br>
+      <span style="color:var(--c64-grey);">pip install pygame numpy</span>
+    </p>
+    <a href="kinderlabs_demo.py" download
+       style="display:inline-block;font-family:var(--title);font-size:9px;
+              background:#000;color:var(--c64-green);border:2px solid var(--c64-green);
+              padding:10px 24px;cursor:pointer;letter-spacing:2px;margin-top:4px;
+              box-shadow:2px 2px 0 #004000;text-decoration:none;"
+       onclick="playBeep(880,100,'square',0.1);">
+      ▼ DESCARGAR DEMO
+    </a><br><br>
+    <button class="modal-close" onclick="closeDemoModal()" style="border-color:var(--c64-green);color:var(--c64-green);">[ VOLVER ]</button>
   </div>
 </div>
 
@@ -1095,13 +1233,25 @@ function animateSparks() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// BOTÓN KIDSLAB
+// BOTÓN KIDSLAB + DEMO
 // ══════════════════════════════════════════════════════════════════
 document.getElementById('btnKidslab').addEventListener('click', () => {
   playBeep(440, 60, 'square', 0.1);
   setTimeout(() => playBeep(880, 80, 'square', 0.1), 80);
   document.getElementById('modal-coming').classList.add('show');
 });
+
+function launchDemo() {
+  playBeep(600, 40, 'square', 0.08);
+  setTimeout(() => playBeep(900, 40, 'square', 0.08), 60);
+  setTimeout(() => playBeep(1200, 80, 'square', 0.1), 120);
+  document.getElementById('modal-demo').classList.add('show');
+}
+
+function closeDemoModal() {
+  playBeep(330, 60, 'square', 0.08);
+  document.getElementById('modal-demo').classList.remove('show');
+}
 
 function closeModal() {
   playBeep(330, 60, 'square', 0.08);
