@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASPR Oracle Node v2.1 · Dashboard</title>
+<style>
+:root{--bg:#101040;--fg:#80ff80;--cyan:#54ffff;--yellow:#f0f050;--red:#ff5050;--dim:#8080c0;--grid:#1c1c58}
+body{background:var(--bg);color:var(--fg);font-family:'Courier New',monospace;margin:0;padding:16px}
+h1,h2{color:var(--yellow);margin:6px 0}
+a{color:var(--cyan)}
+.metrics{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.metric{background:#0a0a20;border:1px solid var(--dim);padding:6px 10px;border-radius:2px;font-size:12px}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{border:1px solid var(--grid);padding:5px 8px;font-size:12px;text-align:left}
+th{color:var(--cyan)}
+.log{background:#050510;border:1px solid var(--dim);padding:8px;height:120px;overflow-y:auto;font-size:11px;color:var(--dim);margin-top:10px}
+footer{margin-top:20px;border-top:1px dashed var(--dim);padding-top:8px;font-size:10px;color:var(--dim)}
+@keyframes blink{50%{opacity:0}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌿 ASPR ORACLE NODE <span style="color:var(--cyan)">v2.1</span> <span style="animation:blink 1s step-end infinite">_</span></h1>
+  <p>ramigardner · moteroenchilado@gmail.com</p>
+</header>
+
+<div class="metrics">
+  <div class="metric">🔄 Ciclo: <span data-aspr="cycle">—</span></div>
+  <div class="metric">📦 Bloques: <span data-aspr="blocks">—</span></div>
+  <div class="metric">🟢 Online: <span data-aspr="online">—</span></div>
+  <div class="metric">⚖️ Karma: <span data-aspr="karma">—</span></div>
+  <div class="metric">🔒 Vault: <span data-aspr="vault">—</span></div>
+  <div class="metric">🔑 FP: <span data-aspr="fp">—</span></div>
+  <div class="metric">📡 Eventos: <span data-aspr="events">—</span></div>
+</div>
+
+<main>
+  <h2>🖧 Dispositivos Monitoreados</h2>
+  <table>
+    <thead><tr><th>ID</th><th>IP</th><th>Tipo</th><th>Karma</th><th>Latencia</th><th>Estado</th></tr></thead>
+    <tbody id="aspr-devices">
+      <tr><td colspan="6" style="color:var(--dim);text-align:center">⏳ Conectando...</td></tr>
+    </tbody>
+  </table>
+
+  <h2>📋 Log del Sistema</h2>
+  <div class="log" id="aspr-log">
+    <div>--:--:-- Esperando datos del nodo local...</div>
+  </div>
+</main>
+
+<footer>
+  <p>ASPR Oracle Node v2.1 · LocIVault Chain · Ed25519 Signed · Structural Trust Protocol</p>
+  <p>Dashboard auto-actualizable · Offline-first · <code>aspr-sync.js</code> v1.0</p>
+</footer>
+<script src="aspr-sync.js"></script>
+</body>
+</html>
