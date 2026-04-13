@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐸 Oracle Kids — Hackers vs Nerds</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Press+Start+2P&display=swap');
+
+:root {
+  --bg:     #101040;
+  --grid:   #1c1c58;
+  --border: #6464ff;
+  --white:  #fffff0;
+  --cyan:   #54ffff;
+  --yellow: #f0f050;
+  --green:  #70ff70;
+  --red:    #ff5050;
+  --grey:   #8080c0;
+  --dim:    #2a2a70;
+  --black:  #000000;
+  --orange: #ffa028;
+  --pixel:  'Share Tech Mono', monospace;
+  --title:  'Press Start 2P', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  background:var(--bg);font-family:var(--pixel);
+  min-height:100vh;overflow-x:hidden;position:relative;cursor:none;
+}
+body::after {
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.07) 3px,rgba(0,0,0,.07) 4px);
+}
+body::before {
+  content:'';position:fixed;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(100,100,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(100,100,255,.07) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+
+.cursor{position:fixed;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);font-size:18px;transition:transform .05s;}
+
+header {
+  background:#000;border-bottom:3px solid var(--cyan);
+  padding:10px 20px;display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:10;flex-wrap:wrap;gap:8px;
+}
+.hdr-brand{font-family:var(--pixel);font-size:clamp(8px,1.2vw,11px);color:var(--grey);}
+.hdr-brand span{color:var(--cyan);}
+.hdr-title{font-family:var(--title);font-size:clamp(7px,1.3vw,11px);color:var(--yellow);text-shadow:2px 2px 0 #806000;letter-spacing:2px;}
+.hdr-right{font-family:var(--pixel);font-size:10px;color:var(--green);display:flex;align-items:center;gap:8px;}
+.dot-blink{width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;animation:blink 1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.game-wrap{max-width:960px;margin:0 auto;padding:16px;position:relative;z-index:1;}
+
+/* Level bar */
+.level-bar{
+  background:#000;border:2px solid var(--cyan);padding:8px 14px;
+  margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;
+}
+.lv-item{font-family:var(--pixel);font-size:9px;color:var(--grey);}
+.lv-item span{color:var(--cyan);}
+.lv-item .pet{color:var(--yellow);}
+
+/* Concepto del nivel */
+.level-concept{
+  font-family:var(--title);font-size:clamp(7px,1.2vw,10px);color:var(--yellow);
+  text-align:center;margin-bottom:12px;text-shadow:1px 1px 0 #806000;letter-spacing:2px;
+}
+.level-hint{font-family:var(--pixel);font-size:10px;color:var(--cyan);text-align:center;margin-bottom:12px;line-height:2;}
+
+/* Main layout: canvas + controles */
+.main-row{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;}
+@media(max-width:700px){.main-row{grid-template-columns:1fr;}}
+
+/* Canvas */
+.canvas-wrap{position:relative;}
+#turtleCanvas{
+  display:block;width:100%;border:3px solid var(--green);
+  background:#000814;
+  image-rendering:pixelated;
+  box-shadow:0 0 20px rgba(112,255,112,.2);
+}
+
+/* Panel derecho */
+.right-panel{display:flex;flex-direction:column;gap:12px;}
+
+/* Objetivo */
+.objetivo-box{
+  background:#000;border:2px solid var(--yellow);padding:12px;
+}
+.objetivo-title{font-family:var(--title);font-size:9px;color:var(--yellow);margin-bottom:8px;letter-spacing:2px;}
+.objetivo-path{
+  display:flex;flex-wrap:wrap;gap:4px;
+}
+.step-badge{
+  font-family:var(--pixel);font-size:9px;padding:3px 7px;
+  border:1px solid var(--dim);color:var(--grey);background:var(--dim);
+  transition:all .2s;
+}
+.step-badge.done{border-color:var(--green);color:var(--green);background:rgba(112,255,112,.1);}
+.step-badge.current{border-color:var(--yellow);color:var(--yellow);background:rgba(240,240,80,.1);animation:cur-blink .7s step-end infinite;}
+@keyframes cur-blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Input de comando */
+.cmd-section{background:#000;border:2px solid var(--cyan);padding:12px;}
+.cmd-title{font-family:var(--title);font-size:9px;color:var(--cyan);margin-bottom:8px;letter-spacing:2px;}
+.cmd-display{
+  font-family:var(--title);font-size:12px;color:var(--green);
+  background:var(--dim);padding:8px 12px;margin-bottom:10px;min-height:36px;
+  border:1px solid var(--grid);letter-spacing:1px;
+}
+.cmd-display .cursor-blink{display:inline-block;width:8px;height:14px;background:var(--green);animation:blink .6s step-end infinite;vertical-align:middle;}
+
+/* Teclado de comandos */
+.cmd-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px;}
+.cmd-btn{
+  font-family:var(--title);font-size:8px;background:#000;color:var(--cyan);
+  border:2px solid var(--cyan);padding:8px 4px;cursor:pointer;letter-spacing:1px;
+  box-shadow:2px 2px 0 #004040;transition:all .1s;text-align:center;line-height:1.4;
+}
+.cmd-btn:hover{background:var(--cyan);color:#000;transform:translate(1px,1px);box-shadow:1px 1px 0 #004040;}
+.cmd-btn.num{color:var(--yellow);border-color:var(--yellow);box-shadow:2px 2px 0 #806000;}
+.cmd-btn.num:hover{background:var(--yellow);color:#000;}
+.cmd-btn.del{color:var(--red);border-color:var(--red);box-shadow:2px 2px 0 #600000;}
+.cmd-btn.del:hover{background:var(--red);color:#000;}
+.cmd-btn.ok{color:var(--green);border-color:var(--green);box-shadow:2px 2px 0 #004000;grid-column:span 3;padding:10px;}
+.cmd-btn.ok:hover{background:var(--green);color:#000;}
+.cmd-btn.reset{color:var(--grey);border-color:var(--grey);box-shadow:2px 2px 0 #404040;grid-column:span 3;}
+.cmd-btn.reset:hover{background:var(--grey);color:#000;}
+
+/* Feedback */
+.feedback{font-family:var(--title);font-size:9px;text-align:center;min-height:32px;padding:6px;letter-spacing:1px;}
+.fb-ok{color:var(--green);text-shadow:0 0 8px var(--green);}
+.fb-err{color:var(--red);}
+.fb-hint{color:var(--yellow);}
+
+/* Mascota */
+.pet-banner{
+  display:none;background:#000;border:3px solid var(--yellow);padding:14px;
+  text-align:center;animation:modal-in .3s ease-out;box-shadow:0 0 24px rgba(240,240,80,.35);
+}
+.pet-banner.show{display:block;}
+.pet-banner h3{font-family:var(--title);font-size:9px;color:var(--yellow);margin-bottom:6px;line-height:1.8;}
+.pet-banner p{font-family:var(--pixel);font-size:9px;color:var(--cyan);line-height:2;}
+@keyframes modal-in{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* Win overlay */
+#win-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
+  z-index:500;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:20px;
+}
+#win-overlay.show{display:flex;}
+.big-emoji{font-size:64px;margin-bottom:14px;animation:float 2s ease-in-out infinite alternate;}
+@keyframes float{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+#win-overlay h1{font-family:var(--title);font-size:clamp(10px,2vw,18px);color:var(--yellow);margin-bottom:14px;text-shadow:0 0 18px var(--yellow);line-height:1.6;}
+#win-overlay p{font-family:var(--pixel);font-size:10px;color:var(--cyan);margin-bottom:18px;line-height:2.2;}
+.btn-next{
+  font-family:var(--title);font-size:9px;background:#000;color:var(--green);
+  border:3px solid var(--green);padding:12px 24px;cursor:pointer;letter-spacing:2px;
+  box-shadow:3px 3px 0 #004000;transition:all .1s;margin:4px;
+}
+.btn-next:hover{background:var(--green);color:#000;transform:translate(1px,1px);box-shadow:2px 2px 0 #004000;}
+
+footer{
+  background:#000;border-top:3px solid var(--cyan);padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  position:relative;z-index:10;margin-top:16px;
+}
+footer a{font-family:var(--pixel);font-size:9px;color:var(--grey);text-decoration:none;transition:color .2s;}
+footer a:hover{color:var(--cyan);}
+footer span{font-family:var(--pixel);font-size:9px;color:var(--dim);}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor">🐸</div>
+
+<header>
+  <div class="hdr-brand">ASPR ORACLE NETWORK &nbsp;|&nbsp; <span>v2.0</span></div>
+  <div class="hdr-title">★ ORACLE KIDS ★</div>
+  <div class="hdr-right"><span class="dot-blink"></span> ONLINE</div>
+</header>
+
+<div class="game-wrap">
+
+  <div class="level-bar">
+    <div class="lv-item">NIVEL: <span id="lv-num">1</span> / 4</div>
+    <div class="lv-item">PASOS: <span id="lv-steps">0</span></div>
+    <div class="lv-item">PUNTOS: <span id="lv-score">0</span></div>
+    <div class="lv-item">MASCOTA: <span class="pet" id="lv-pet">—</span></div>
+  </div>
+
+  <div class="level-concept" id="lv-concept">NIVEL 1 — ADELANTE</div>
+  <div class="level-hint" id="lv-hint">Usá FD para moverte hacia adelante</div>
+
+  <div class="main-row">
+
+    <!-- Canvas tortuga -->
+    <div class="canvas-wrap">
+      <canvas id="turtleCanvas" width="480" height="400"></canvas>
+    </div>
+
+    <!-- Panel -->
+    <div class="right-panel">
+
+      <!-- Objetivo -->
+      <div class="objetivo-box">
+        <div class="objetivo-title">★ OBJETIVO</div>
+        <div class="objetivo-path" id="obj-path"><!-- JS --></div>
+      </div>
+
+      <!-- Input comando -->
+      <div class="cmd-section">
+        <div class="cmd-title">COMANDO</div>
+        <div class="cmd-display" id="cmd-display">
+          <span class="cursor-blink"></span>
+        </div>
+
+        <!-- Botones de comando -->
+        <div class="cmd-btns" id="cmd-btns"><!-- JS --></div>
+
+        <div class="feedback" id="feedback"></div>
+      </div>
+
+      <!-- Mascota -->
+      <div class="pet-banner" id="pet-banner">
+        <h3 id="pet-name">¡MASCOTA!</h3>
+        <p id="pet-desc">desc</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Win overlay -->
+<div id="win-overlay">
+  <div class="big-emoji" id="win-emoji">🐸</div>
+  <h1 id="win-title">¡NIVEL COMPLETADO!</h1>
+  <p id="win-text">texto</p>
+  <button class="btn-next" id="win-btn">SIGUIENTE NIVEL ▶</button>
+  <br>
+  <a href="kidslab_splash.html" style="font-family:var(--pixel);font-size:9px;color:var(--grey);text-decoration:none;letter-spacing:1px;margin-top:12px;display:inline-block;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--grey)'">← VOLVER AL KIDSLAB</a>
+</div>
+
+<footer>
+  <a href="kidslab_splash.html">← KIDSLAB</a>
+  <span>🐸 ORACLE KIDS WEB EDITION · PYTHON + PYGAME PARA OFFLINE</span>
+  <a href="https://github.com/ramigardner/aspr-gardener" target="_blank">GITHUB ↗</a>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CURSOR
+// ══════════════════════════════════════════════════════════════════
+const cursorEl = document.getElementById('cursor');
+document.addEventListener('mousemove', e=>{cursorEl.style.left=e.clientX+'px';cursorEl.style.top=e.clientY+'px';});
+document.addEventListener('mousedown',()=>cursorEl.style.transform='translate(-50%,-50%) scale(0.7)');
+document.addEventListener('mouseup',  ()=>cursorEl.style.transform='translate(-50%,-50%) scale(1)');
+
+// ══════════════════════════════════════════════════════════════════
+// AUDIO
+// ══════════════════════════════════════════════════════════════════
+let audioCtx=null;
+function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+function beep(f,d,t='square',v=.08){
+  try{
+    initAudio();
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type=t;o.frequency.setValueAtTime(f,audioCtx.currentTime);
+    g.gain.setValueAtTime(v,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+d/1000);
+    o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d/1000);
+  }catch(e){}
+}
+function playMove(){beep(440,60,'square',.07);}
+function playTurn(){beep(880,60,'square',.06);}
+function playOk(){beep(440,80);setTimeout(()=>beep(660,80),90);setTimeout(()=>beep(880,120),180);}
+function playErr(){beep(220,150,'sawtooth',.1);}
+function playLevelUp(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,100,'square',.12),i*120));}
+function playWin(){[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,120,'square',.14),i*130));}
+
+// ══════════════════════════════════════════════════════════════════
+// NIVELES
+// ══════════════════════════════════════════════════════════════════
+const CELL = 32;
+
+const LEVELS = [
+  {
+    id:1, titulo:'ADELANTE', emoji:'➡️',
+    concepto:'Usá FD para moverte hacia adelante',
+    pasos:[
+      {cmd:'FD 4', action:['fd',4], desc:'FD 4'},
+    ],
+    cmds:['FD'],
+    nums:[2,3,4,5,6],
+  },
+  {
+    id:2, titulo:'GIROS', emoji:'🔄',
+    concepto:'Girá a la derecha o izquierda con RT/LT',
+    pasos:[
+      {cmd:'FD 2', action:['fd',2], desc:'FD 2'},
+      {cmd:'RT 90', action:['rt',90], desc:'RT 90'},
+      {cmd:'FD 3', action:['fd',3], desc:'FD 3'},
+    ],
+    cmds:['FD','RT','LT'],
+    nums:[2,3,4,90],
+  },
+  {
+    id:3, titulo:'CUADRADO', emoji:'⬜',
+    concepto:'Repetí FD + RT para hacer un cuadrado',
+    pasos:[
+      {cmd:'FD 4', action:['fd',4], desc:'FD 4'},
+      {cmd:'RT 90', action:['rt',90], desc:'RT 90'},
+      {cmd:'FD 4', action:['fd',4], desc:'FD 4'},
+      {cmd:'RT 90', action:['rt',90], desc:'RT 90'},
+      {cmd:'FD 4', action:['fd',4], desc:'FD 4'},
+      {cmd:'RT 90', action:['rt',90], desc:'RT 90'},
+      {cmd:'FD 4', action:['fd',4], desc:'FD 4'},
+    ],
+    cmds:['FD','RT','LT'],
+    nums:[2,3,4,5,90],
+  },
+  {
+    id:4, titulo:'TRIÁNGULO', emoji:'🔺',
+    concepto:'Triángulo equilátero: FD + RT 120°',
+    pasos:[
+      {cmd:'FD 5', action:['fd',5], desc:'FD 5'},
+      {cmd:'RT 120', action:['rt',120], desc:'RT 120'},
+      {cmd:'FD 5', action:['fd',5], desc:'FD 5'},
+      {cmd:'RT 120', action:['rt',120], desc:'RT 120'},
+      {cmd:'FD 5', action:['fd',5], desc:'FD 5'},
+    ],
+    cmds:['FD','RT','LT'],
+    nums:[3,4,5,6,90,120],
+  },
+];
+
+const PETS = [
+  {name:'Saltarina',emoji:'🐸',poder:'Salta bugs'},
+  {name:'Tortu',    emoji:'🐢',poder:'Escudo'},
+  {name:'Misifú',   emoji:'🐱',poder:'Vida extra'},
+  {name:'Pulgi',    emoji:'🐶',poder:'Olfato'},
+];
+
+// ══════════════════════════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════════════════════════
+let state = {
+  levelIdx: 0,
+  stepIdx: 0,
+  score: 0,
+  pet: null,
+  input: '',      // "FD 4" style
+  inputPhase: 0,  // 0=cmd 1=num
+  selectedCmd: '',
+  turtle: { x:240, y:280, angle:-90, penDown:true },
+  path: [],       // {x,y}[]
+  trailPts: [],   // trail drawn
+};
+
+// ══════════════════════════════════════════════════════════════════
+// CANVAS + TURTLE
+// ══════════════════════════════════════════════════════════════════
+const canvas = document.getElementById('turtleCanvas');
+const ctx    = canvas.getContext('2d');
+
+function resetTurtle() {
+  state.turtle = {x:canvas.width/2, y:canvas.height-60, angle:-90, penDown:true};
+  state.trailPts = [[state.turtle.x, state.turtle.y]];
+  state.path = [[state.turtle.x, state.turtle.y]];
+}
+
+function drawScene() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Fondo
+  ctx.fillStyle='#000814';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // Grid
+  ctx.strokeStyle='rgba(50,50,120,.3)';
+  ctx.lineWidth=.5;
+  for(let x=0;x<canvas.width;x+=CELL){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
+  for(let y=0;y<canvas.height;y+=CELL){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+
+  // Preview del camino objetivo (guía translucida)
+  drawGoalPath();
+
+  // Trail de la tortuga
+  if(state.trailPts.length>1){
+    ctx.beginPath();
+    ctx.strokeStyle='rgba(112,255,112,.8)';
+    ctx.lineWidth=2;
+    ctx.moveTo(state.trailPts[0][0],state.trailPts[0][1]);
+    state.trailPts.forEach(p=>ctx.lineTo(p[0],p[1]));
+    ctx.stroke();
+  }
+
+  // Tortuga
+  drawTurtle(state.turtle.x, state.turtle.y, state.turtle.angle);
+}
+
+function drawGoalPath() {
+  // Simular el nivel completo para mostrar destino
+  const lv = LEVELS[state.levelIdx];
+  let gx = canvas.width/2, gy = canvas.height-60, ga = -90;
+  const pts = [[gx,gy]];
+  lv.pasos.forEach(paso => {
+    const [act,val] = paso.action;
+    if(act==='fd'){
+      gx += Math.cos(ga*Math.PI/180)*val*CELL;
+      gy += Math.sin(ga*Math.PI/180)*val*CELL;
+      pts.push([gx,gy]);
+    } else if(act==='rt') { ga += val; }
+    else if(act==='lt') { ga -= val; }
+  });
+  ctx.beginPath();
+  ctx.strokeStyle='rgba(240,240,80,.18)';
+  ctx.setLineDash([6,8]);
+  ctx.lineWidth=1.5;
+  ctx.moveTo(pts[0][0],pts[0][1]);
+  pts.forEach(p=>ctx.lineTo(p[0],p[1]));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Estrella destino
+  const last=pts[pts.length-1];
+  ctx.fillStyle='rgba(240,240,80,.4)';
+  ctx.font='18px serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('★',last[0],last[1]);
+}
+
+function drawTurtle(x, y, angle) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate((angle+90)*Math.PI/180);
+
+  // Cuerpo
+  ctx.fillStyle='#50c080';
+  ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();
+
+  // Cabeza (frente)
+  ctx.fillStyle='#70ff90';
+  ctx.beginPath();ctx.arc(0,-13,5,0,Math.PI*2);ctx.fill();
+
+  // Ojos
+  ctx.fillStyle='#54ffff';
+  ctx.beginPath();ctx.arc(-4,-14,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(4,-14,2,0,Math.PI*2);ctx.fill();
+
+  // Contorno
+  ctx.strokeStyle='#208050';
+  ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.stroke();
+
+  ctx.restore();
+}
+
+function applyAction(act, val) {
+  const t = state.turtle;
+  if(act==='fd'){
+    const nx = t.x + Math.cos(t.angle*Math.PI/180)*val*CELL;
+    const ny = t.y + Math.sin(t.angle*Math.PI/180)*val*CELL;
+    t.x=nx; t.y=ny;
+    state.trailPts.push([nx,ny]);
+    playMove();
+  } else if(act==='rt'){
+    t.angle+=val;
+    playTurn();
+  } else if(act==='lt'){
+    t.angle-=val;
+    playTurn();
+  }
+  drawScene();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// UI
+// ══════════════════════════════════════════════════════════════════
+function updateHUD() {
+  const lv=LEVELS[state.levelIdx];
+  document.getElementById('lv-num').textContent   = lv.id;
+  document.getElementById('lv-steps').textContent = state.stepIdx+'/'+lv.pasos.length;
+  document.getElementById('lv-score').textContent = state.score;
+  document.getElementById('lv-pet').textContent   = state.pet ? state.pet.emoji+' '+state.pet.name : '—';
+  document.getElementById('lv-concept').textContent = `NIVEL ${lv.id} — ${lv.titulo} ${lv.emoji}`;
+  document.getElementById('lv-hint').textContent  = lv.concepto;
+}
+
+function renderObjective() {
+  const lv=LEVELS[state.levelIdx];
+  const container=document.getElementById('obj-path');
+  container.innerHTML='';
+  lv.pasos.forEach((paso,i)=>{
+    const el=document.createElement('div');
+    el.className='step-badge'+
+      (i<state.stepIdx?' done':i===state.stepIdx?' current':'');
+    el.textContent=paso.desc;
+    container.appendChild(el);
+  });
+}
+
+function renderCmdBtns() {
+  const lv=LEVELS[state.levelIdx];
+  const container=document.getElementById('cmd-btns');
+  container.innerHTML='';
+
+  if(state.inputPhase===0){
+    // Mostrar comandos disponibles
+    lv.cmds.forEach(cmd=>{
+      const btn=document.createElement('button');
+      btn.className='cmd-btn';
+      btn.textContent=cmd;
+      btn.onclick=()=>selectCmd(cmd);
+      container.appendChild(btn);
+    });
+  } else {
+    // Mostrar números
+    lv.nums.forEach(n=>{
+      const btn=document.createElement('button');
+      btn.className='cmd-btn num';
+      btn.textContent=n;
+      btn.onclick=()=>selectNum(n);
+      container.appendChild(btn);
+    });
+    const del=document.createElement('button');
+    del.className='cmd-btn del'; del.textContent='← ATRÁS';
+    del.onclick=()=>{state.inputPhase=0;state.selectedCmd='';state.input='';updateCmdDisplay();renderCmdBtns();};
+    container.appendChild(del);
+  }
+
+  // Siempre: botón reset
+  const rst=document.createElement('button');
+  rst.className='cmd-btn reset'; rst.textContent='↺ REINICIAR NIVEL';
+  rst.onclick=()=>resetLevel();
+  container.appendChild(rst);
+}
+
+function selectCmd(cmd){
+  beep(660,50,'square',.05);
+  state.selectedCmd=cmd;
+  state.input=cmd+' ';
+  state.inputPhase=1;
+  updateCmdDisplay();
+  renderCmdBtns();
+}
+
+function selectNum(n){
+  state.input=state.selectedCmd+' '+n;
+  state.inputPhase=0;
+  updateCmdDisplay();
+  submitCommand();
+}
+
+function updateCmdDisplay(){
+  const el=document.getElementById('cmd-display');
+  el.innerHTML=state.input
+    ? `<span style="color:var(--green)">${state.input}</span><span class="cursor-blink"></span>`
+    : '<span class="cursor-blink"></span>';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SUBMIT COMMAND
+// ══════════════════════════════════════════════════════════════════
+function submitCommand(){
+  const lv=LEVELS[state.levelIdx];
+  const expected=lv.pasos[state.stepIdx];
+  const input=state.input.trim().toUpperCase();
+
+  // Parsear
+  const parts=input.split(/\s+/);
+  const cmd=parts[0];
+  const num=parseInt(parts[1],10);
+
+  const [eAct,eVal]=expected.action;
+  const cmdMap={'FD':'fd','RT':'rt','LT':'lt','ADELANTE':'fd','DERECHA':'rt','IZQUIERDA':'lt'};
+  const parsedAct=cmdMap[cmd];
+
+  if(parsedAct===eAct && num===eVal){
+    // Correcto
+    playOk();
+    applyAction(eAct,eVal);
+    state.stepIdx++;
+    state.score+=100;
+    updateHUD();
+    renderObjective();
+    showFeedback('✓ ¡CORRECTO!','ok');
+
+    state.input=''; state.selectedCmd=''; state.inputPhase=0;
+    updateCmdDisplay();
+    renderCmdBtns();
+
+    // ¿Nivel completado?
+    if(state.stepIdx>=lv.pasos.length){
+      setTimeout(()=>levelComplete(),800);
+    }
+  } else {
+    playErr();
+    let hint='';
+    if(parsedAct!==eAct) hint=`Probá ${eAct.toUpperCase()}`;
+    else hint=`El número correcto es ${eVal}`;
+    showFeedback(`✗ INCORRECTO — ${hint}`,'err');
+    state.input=''; state.selectedCmd=''; state.inputPhase=0;
+    updateCmdDisplay();
+    renderCmdBtns();
+  }
+}
+
+function showFeedback(msg,type){
+  const fb=document.getElementById('feedback');
+  fb.textContent=msg;
+  fb.className='feedback fb-'+type;
+  if(type!=='err') setTimeout(()=>{ if(fb.className==='feedback fb-'+type) fb.textContent=''; },2000);
+}
+
+function resetLevel(){
+  beep(330,80,'sawtooth',.07);
+  state.stepIdx=0; state.input=''; state.selectedCmd=''; state.inputPhase=0;
+  resetTurtle(); drawScene();
+  updateHUD(); renderObjective(); updateCmdDisplay(); renderCmdBtns();
+  showFeedback('NIVEL REINICIADO','hint');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// NIVEL COMPLETO / WIN
+// ══════════════════════════════════════════════════════════════════
+function levelComplete(){
+  playLevelUp();
+
+  // Mascota al completar nivel 2
+  if(!state.pet && state.levelIdx>=1){
+    state.pet=PETS[Math.floor(Math.random()*PETS.length)];
+    showPet(state.pet);
+    updateHUD();
+  }
+
+  const lv=LEVELS[state.levelIdx];
+  const isLast=state.levelIdx>=LEVELS.length-1;
+
+  const ws=document.getElementById('win-overlay');
+  document.getElementById('win-emoji').textContent = state.pet ? state.pet.emoji : lv.emoji;
+  document.getElementById('win-title').textContent = isLast ? '¡COMPLETASTE TODO!' : `¡NIVEL ${lv.id} COMPLETADO!`;
+  document.getElementById('win-text').innerHTML    =
+    `PUNTOS TOTALES: ${state.score}<br>`+
+    (state.pet ? `MASCOTA: ${state.pet.emoji} ${state.pet.name}<br>` : '')+
+    (isLast ? '<br><span style="color:var(--yellow)">★ DETECTIVE MAESTRO ★</span>' : `SIGUIENTE: NIVEL ${lv.id+1}`);
+
+  const btn=document.getElementById('win-btn');
+  if(isLast){
+    btn.textContent='[ JUGAR DE NUEVO ]';
+    btn.onclick=()=>{startGame(); ws.classList.remove('show');};
+  } else {
+    btn.textContent='SIGUIENTE NIVEL ▶';
+    btn.onclick=()=>{
+      state.levelIdx++;
+      state.stepIdx=0;
+      state.input=''; state.selectedCmd=''; state.inputPhase=0;
+      ws.classList.remove('show');
+      resetTurtle(); drawScene();
+      updateHUD(); renderObjective(); updateCmdDisplay(); renderCmdBtns();
+      showFeedback('','ok');
+    };
+  }
+
+  if(isLast) playWin();
+  ws.classList.add('show');
+}
+
+function showPet(pet){
+  const b=document.getElementById('pet-banner');
+  document.getElementById('pet-name').textContent=`¡${pet.emoji} ${pet.name.toUpperCase()}!`;
+  document.getElementById('pet-desc').textContent=`PODER: ${pet.poder}`;
+  b.classList.add('show');
+  setTimeout(()=>b.classList.remove('show'),3500);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+function startGame(){
+  state.levelIdx=0; state.stepIdx=0; state.score=0; state.pet=null;
+  state.input=''; state.selectedCmd=''; state.inputPhase=0;
+  resetTurtle(); drawScene();
+  updateHUD(); renderObjective(); updateCmdDisplay(); renderCmdBtns();
+}
+
+startGame();
+</script>
+</body>
+</html>

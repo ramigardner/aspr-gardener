@@ -690,8 +690,9 @@ body {
   <!-- Barra inferior -->
   <div class="bottom-bar">
 
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div class="demo-monitor" onclick="window.open('kinderlabs_demo.py','_blank')" title="Descargar Oracle Kids Demo">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <!-- Monitor Oracle Kids — abre juego online -->
+      <div class="demo-monitor" onclick="launchDemo()" title="Oracle Kids — Hackers vs Nerds">
         <div class="monitor-body">
           <div class="monitor-screen">
             <span class="monitor-demo-text">DEMO</span>
@@ -703,8 +704,8 @@ body {
         <div class="monitor-stand-neck"></div>
         <div class="monitor-stand-base"></div>
       </div>
-      <!-- Monitor Detective Lab -->
-      <div class="demo-monitor detective" onclick="window.open('detective_lab.py','_blank')" title="Descargar Detective Lab">
+      <!-- Monitor Detective Lab — abre juego online -->
+      <div class="demo-monitor detective" onclick="launchDetective()" title="Detective Lab — Matrices">
         <div class="monitor-body">
           <div class="monitor-screen">
             <span class="monitor-demo-text detective">🔍LAB</span>
@@ -762,22 +763,33 @@ body {
 <!-- Modal DEMO -->
 <div id="modal-demo">
   <div class="modal-box" style="border-color:var(--c64-green);box-shadow:0 0 40px rgba(112,255,112,0.3);">
-    <h2 style="color:var(--c64-green);">🧪 KIDSLAB DEMO<br>── DISPONIBLE ──</h2>
+    <h2 style="color:var(--c64-green);">🐸 ORACLE KIDS<br>── HACKERS VS NERDS ──</h2>
     <p>
-      <span style="color:var(--c64-green);">ORACLE KIDS: HACKERS VS NERDS</span><br>
+      <span style="color:var(--c64-green);">LOGO TURTLE · 4 NIVELES · MASCOTA</span><br>
       ────────────────────────────<br>
-      Descargá el archivo .py y correlo<br>
-      con Python + Pygame instalado.<br><br>
-      <span style="color:var(--c64-yellow);">Python 3.11 · Pygame 2.5 · numpy</span><br><br>
+      Jugá directo en el browser<br>
+      o descargá la versión completa.<br><br>
+      <span style="color:var(--c64-yellow);">Offline: Python 3.11 · Pygame 2.5</span><br>
       <span style="color:var(--c64-grey);">pip install pygame numpy</span>
     </p>
+    <!-- Jugar online -->
+    <a href="oracle_kids_web.html"
+       style="display:inline-block;font-family:var(--title);font-size:9px;
+              background:var(--c64-green);color:#000;border:2px solid var(--c64-green);
+              padding:10px 24px;cursor:pointer;letter-spacing:2px;margin-top:4px;
+              box-shadow:2px 2px 0 #004000;text-decoration:none;"
+       onclick="playBeep(880,100,'square',0.1);">
+      ▶ JUGAR ONLINE
+    </a>
+    &nbsp;
+    <!-- Descargar offline -->
     <a href="kinderlabs_demo.py" download
        style="display:inline-block;font-family:var(--title);font-size:9px;
               background:#000;color:var(--c64-green);border:2px solid var(--c64-green);
               padding:10px 24px;cursor:pointer;letter-spacing:2px;margin-top:4px;
               box-shadow:2px 2px 0 #004000;text-decoration:none;"
-       onclick="playBeep(880,100,'square',0.1);">
-      ▼ DESCARGAR DEMO
+       onclick="playBeep(660,100,'square',0.08);">
+      ▼ OFFLINE .PY
     </a><br><br>
     <button class="modal-close" onclick="closeDemoModal()" style="border-color:var(--c64-green);color:var(--c64-green);">[ VOLVER ]</button>
   </div>
@@ -786,22 +798,33 @@ body {
 <!-- Modal DETECTIVE LAB -->
 <div id="modal-detective">
   <div class="modal-box" style="border-color:#e050e0;box-shadow:0 0 40px rgba(220,80,220,0.3);">
-    <h2 style="color:#e050e0;">🔍 DETECTIVE LAB<br>── DISPONIBLE ──</h2>
+    <h2 style="color:#e050e0;">🔍 DETECTIVE LAB<br>── MATRICES ──</h2>
     <p>
-      <span style="color:#e050e0;">ORACLE KIDS: DETECTIVE EDITION</span><br>
+      <span style="color:#e050e0;">A + B = C · ENCONTRÁ LA CELDA OCULTA</span><br>
       ────────────────────────────<br>
-      Matrices A + B = C · Descubrí<br>
-      qué celda oculta el valor.<br><br>
-      <span style="color:var(--c64-yellow);">Python 3.11 · Pygame 2.5 · numpy</span><br><br>
+      Jugá directo en el browser<br>
+      o descargá la versión completa.<br><br>
+      <span style="color:var(--c64-yellow);">Offline: Python 3.11 · Pygame 2.5 · numpy</span><br>
       <span style="color:var(--c64-grey);">pip install pygame numpy</span>
     </p>
+    <!-- Jugar online -->
+    <a href="detective_lab_web.html"
+       style="display:inline-block;font-family:var(--title);font-size:9px;
+              background:#e050e0;color:#000;border:2px solid #e050e0;
+              padding:10px 24px;cursor:pointer;letter-spacing:2px;margin-top:4px;
+              box-shadow:2px 2px 0 #600060;text-decoration:none;"
+       onclick="playBeep(880,100,'square',0.1);">
+      ▶ JUGAR ONLINE
+    </a>
+    &nbsp;
+    <!-- Descargar offline -->
     <a href="detective_lab.py" download
        style="display:inline-block;font-family:var(--title);font-size:9px;
               background:#000;color:#e050e0;border:2px solid #e050e0;
               padding:10px 24px;cursor:pointer;letter-spacing:2px;margin-top:4px;
               box-shadow:2px 2px 0 #600060;text-decoration:none;"
-       onclick="playBeep(660,100,'square',0.1);">
-      ▼ DESCARGAR DETECTIVE LAB
+       onclick="playBeep(660,100,'square',0.08);">
+      ▼ OFFLINE .PY
     </a><br><br>
     <button class="modal-close" onclick="closeDetectiveModal()"
             style="border-color:#e050e0;color:#e050e0;">[ VOLVER ]</button>

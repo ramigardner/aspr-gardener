@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔍 Detective Lab — Oracle Kids</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Press+Start+2P&display=swap');
+
+:root {
+  --bg:      #101040;
+  --grid:    #1c1c58;
+  --border:  #6464ff;
+  --white:   #fffff0;
+  --cyan:    #54ffff;
+  --yellow:  #f0f050;
+  --green:   #70ff70;
+  --red:     #ff5050;
+  --grey:    #8080c0;
+  --dim:     #323270;
+  --black:   #000000;
+  --orange:  #ffa028;
+  --magenta: #dc50dc;
+  --pixel:   'Share Tech Mono', monospace;
+  --title:   'Press Start 2P', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  background: var(--bg);
+  font-family: var(--pixel);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  cursor: none;
+}
+
+/* Scanlines */
+body::after {
+  content:'';
+  position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
+  );
+}
+
+/* Grid bg */
+body::before {
+  content:'';
+  position:fixed;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(100,100,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100,100,255,.08) 1px, transparent 1px);
+  background-size:32px 32px;
+}
+
+/* Custom cursor */
+.cursor {
+  position:fixed;width:20px;height:20px;pointer-events:none;
+  z-index:10000;transform:translate(-50%,-50%);font-size:16px;
+  transition:transform .05s;
+}
+
+/* Header */
+header {
+  background:#000;
+  border-bottom:3px solid var(--cyan);
+  padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:10;
+  flex-wrap:wrap;gap:8px;
+}
+.hdr-brand { font-family:var(--pixel);font-size:clamp(8px,1.2vw,11px);color:var(--grey); }
+.hdr-brand span { color:var(--cyan); }
+.hdr-title { font-family:var(--title);font-size:clamp(7px,1.3vw,12px);color:var(--magenta);text-shadow:2px 2px 0 #600060;letter-spacing:2px; }
+.hdr-right { font-family:var(--pixel);font-size:10px;color:var(--green);display:flex;align-items:center;gap:8px; }
+.dot-blink { width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;animation:blink 1s step-end infinite; }
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Contenido principal */
+.game-wrap {
+  max-width:900px;margin:0 auto;padding:20px;
+  position:relative;z-index:1;
+}
+
+/* Score bar */
+.score-bar {
+  display:flex;justify-content:space-between;align-items:center;
+  background:#000;border:2px solid var(--cyan);padding:8px 16px;
+  margin-bottom:16px;flex-wrap:wrap;gap:8px;
+}
+.score-item { font-family:var(--pixel);font-size:10px;color:var(--grey);line-height:1.8; }
+.score-item span { color:var(--cyan); }
+.score-item .pet { color:var(--yellow); }
+
+/* Título del reto */
+.challenge-title {
+  font-family:var(--title);font-size:clamp(8px,1.4vw,12px);color:var(--yellow);
+  text-align:center;margin-bottom:16px;
+  text-shadow:2px 2px 0 #806000;
+  animation:title-pulse 2s ease-in-out infinite alternate;
+}
+@keyframes title-pulse{from{opacity:1}to{opacity:.7}}
+
+/* Instrucción */
+.instruction {
+  font-family:var(--pixel);font-size:10px;color:var(--cyan);
+  text-align:center;margin-bottom:20px;line-height:2;
+}
+
+/* Matrices grid */
+.matrices-row {
+  display:flex;align-items:center;justify-content:center;gap:20px;
+  flex-wrap:wrap;margin-bottom:24px;
+}
+
+.matrix-block { display:flex;flex-direction:column;align-items:center;gap:8px; }
+.matrix-label {
+  font-family:var(--title);font-size:10px;letter-spacing:2px;
+  padding:4px 12px;border:2px solid currentColor;
+}
+.matrix-label.a { color:var(--cyan);border-color:var(--cyan); }
+.matrix-label.b { color:var(--green);border-color:var(--green); }
+.matrix-label.c { color:var(--magenta);border-color:var(--magenta); }
+
+.matrix-grid {
+  display:grid;gap:3px;
+}
+
+.cell {
+  width:clamp(36px,5vw,52px);height:clamp(36px,5vw,52px);
+  border:2px solid var(--dim);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--title);font-size:clamp(9px,1.2vw,14px);
+  color:var(--white);background:var(--grid);
+  cursor:default;
+  transition:all .15s;
+  position:relative;
+}
+
+.cell.highlight {
+  border-color:var(--yellow) !important;
+  background: rgba(240,240,80,.15) !important;
+  box-shadow:0 0 8px var(--yellow),inset 0 0 4px rgba(240,240,80,.1);
+  animation:cell-blink 0.8s step-end infinite;
+}
+@keyframes cell-blink{0%,100%{border-color:var(--yellow)}50%{border-color:var(--orange)}}
+
+.cell.hidden {
+  color:var(--dim);
+  cursor:pointer;
+  border-color:var(--magenta);
+  background:rgba(220,80,220,.12);
+  font-size:20px;
+}
+.cell.hidden:hover {
+  border-color:var(--yellow);
+  background:rgba(240,240,80,.12);
+  transform:scale(1.06);
+  box-shadow:0 0 10px var(--yellow);
+}
+
+.op-sign {
+  font-family:var(--title);font-size:clamp(20px,3vw,36px);
+  color:var(--yellow);text-shadow:2px 2px 0 #806000;
+  align-self:center;
+}
+
+/* Teclado en pantalla */
+.keypad-section { text-align:center;margin-bottom:20px; }
+.keypad-label { font-family:var(--pixel);font-size:10px;color:var(--grey);margin-bottom:10px; }
+.keypad {
+  display:inline-grid;grid-template-columns:repeat(5,1fr);gap:6px;
+}
+.key-btn {
+  width:clamp(36px,5vw,52px);height:clamp(36px,5vw,52px);
+  font-family:var(--title);font-size:clamp(9px,1.1vw,13px);
+  background:#000;color:var(--cyan);border:2px solid var(--cyan);
+  cursor:pointer;letter-spacing:1px;
+  transition:all .1s;
+  box-shadow:2px 2px 0 #004040;
+}
+.key-btn:hover {
+  background:var(--cyan);color:#000;
+  transform:translate(1px,1px);
+  box-shadow:1px 1px 0 #004040;
+}
+.key-btn:active { transform:translate(2px,2px);box-shadow:none; }
+
+/* Feedback */
+.feedback {
+  text-align:center;min-height:48px;padding:8px;
+  font-family:var(--title);font-size:clamp(8px,1.3vw,12px);
+  letter-spacing:2px;
+}
+.fb-correct { color:var(--green);text-shadow:0 0 12px var(--green); }
+.fb-wrong   { color:var(--red);text-shadow:0 0 8px var(--red); }
+
+/* Barra de progreso */
+.progress-wrap {
+  background:#000;border:2px solid var(--cyan);padding:3px;margin-bottom:16px;
+}
+.progress-fill {
+  height:12px;background:var(--cyan);
+  transition:width .4s ease;
+  position:relative;overflow:hidden;
+}
+.progress-fill::after {
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0,transparent 8px,rgba(0,0,0,.3) 8px,rgba(0,0,0,.3) 10px);
+}
+.progress-label { font-family:var(--pixel);font-size:9px;color:var(--grey);margin-top:4px;text-align:right; }
+
+/* Pet reward */
+.pet-banner {
+  display:none;
+  background:#000;border:3px solid var(--yellow);padding:20px;
+  text-align:center;margin-bottom:16px;
+  animation:modal-in .3s ease-out;
+  box-shadow:0 0 30px rgba(240,240,80,.4);
+}
+.pet-banner.show { display:block; }
+.pet-banner h2 { font-family:var(--title);font-size:12px;color:var(--yellow);margin-bottom:10px;line-height:1.8; }
+.pet-banner p  { font-family:var(--pixel);font-size:10px;color:var(--cyan);line-height:2; }
+@keyframes modal-in{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* Win screen */
+#win-screen {
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);
+  z-index:500;align-items:center;justify-content:center;flex-direction:column;
+  text-align:center;padding:20px;
+}
+#win-screen.show { display:flex; }
+#win-screen h1 { font-family:var(--title);font-size:clamp(12px,2vw,20px);color:var(--yellow);margin-bottom:16px;text-shadow:0 0 20px var(--yellow);line-height:1.6; }
+#win-screen p  { font-family:var(--pixel);font-size:10px;color:var(--cyan);margin-bottom:20px;line-height:2.2; }
+.big-emoji { font-size:64px;margin-bottom:16px;animation:float 2s ease-in-out infinite alternate; }
+@keyframes float{from{transform:translateY(0)}to{transform:translateY(-12px)}}
+.btn-play-again {
+  font-family:var(--title);font-size:10px;background:#000;color:var(--green);
+  border:3px solid var(--green);padding:14px 28px;cursor:pointer;letter-spacing:2px;
+  box-shadow:3px 3px 0 #004000;transition:all .1s;
+}
+.btn-play-again:hover { background:var(--green);color:#000;transform:translate(1px,1px);box-shadow:2px 2px 0 #004000; }
+
+/* Footer */
+footer {
+  background:#000;border-top:3px solid var(--cyan);
+  padding:10px 20px;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;position:relative;z-index:10;margin-top:20px;
+}
+footer a { font-family:var(--pixel);font-size:9px;color:var(--grey);text-decoration:none;transition:color .2s; }
+footer a:hover { color:var(--cyan); }
+footer span { font-family:var(--pixel);font-size:9px;color:var(--dim); }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor">🔍</div>
+
+<header>
+  <div class="hdr-brand">ASPR ORACLE NETWORK &nbsp;|&nbsp; <span>v2.0</span></div>
+  <div class="hdr-title">★ DETECTIVE LAB ★</div>
+  <div class="hdr-right"><span class="dot-blink"></span> ONLINE</div>
+</header>
+
+<div class="game-wrap">
+
+  <!-- Progreso -->
+  <div class="progress-wrap">
+    <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+  </div>
+  <div class="progress-label" id="prog-label">RETO 0 / 6</div>
+
+  <!-- Score -->
+  <div class="score-bar">
+    <div class="score-item">PUNTOS: <span id="score-val">0</span></div>
+    <div class="score-item">RACHA: <span id="streak-val">0</span> 🔥</div>
+    <div class="score-item">TIEMPO: <span id="timer-val">--</span>s</div>
+    <div class="score-item">MASCOTA: <span class="pet" id="pet-val">—</span></div>
+  </div>
+
+  <!-- Pet reward banner -->
+  <div class="pet-banner" id="pet-banner">
+    <h2 id="pet-title">¡NUEVA MASCOTA!</h2>
+    <p id="pet-desc">descripción</p>
+  </div>
+
+  <!-- Título reto -->
+  <div class="challenge-title" id="challenge-title">CARGANDO RETO...</div>
+
+  <!-- Instrucción -->
+  <div class="instruction" id="instruction">
+    Encontrá qué celda de A sumada con su pareja en B da el valor de C que titila.
+  </div>
+
+  <!-- Matrices -->
+  <div class="matrices-row" id="matrices-row">
+    <!-- generado por JS -->
+  </div>
+
+  <!-- Teclado en pantalla -->
+  <div class="keypad-section">
+    <div class="keypad-label">INGRESÁ EL VALOR DE LA CELDA OCULTA:</div>
+    <div class="keypad" id="keypad">
+      <!-- generado por JS: 1-9 + 0 + DEL + OK -->
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="feedback" id="feedback"></div>
+
+</div>
+
+<!-- Win screen -->
+<div id="win-screen">
+  <div class="big-emoji" id="win-emoji">🔍</div>
+  <h1 id="win-title">¡CASO CERRADO!</h1>
+  <p id="win-text">descripción</p>
+  <button class="btn-play-again" onclick="startGame()">[ JUGAR DE NUEVO ]</button>
+  <br><br>
+  <a href="kidslab_splash.html" style="font-family:var(--pixel);font-size:9px;color:var(--grey);text-decoration:none;letter-spacing:1px;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--grey)'">← VOLVER AL KIDSLAB</a>
+</div>
+
+<footer>
+  <a href="kidslab_splash.html">← KIDSLAB</a>
+  <span>ASPR ORACLE NODE v2.0 · 🔍 DETECTIVE LAB WEB EDITION</span>
+  <a href="https://github.com/ramigardner/aspr-gardener" target="_blank">GITHUB ↗</a>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CURSOR
+// ══════════════════════════════════════════════════════════════════
+const cursorEl = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursorEl.style.left = e.clientX + 'px';
+  cursorEl.style.top  = e.clientY + 'px';
+});
+document.addEventListener('mousedown', () => cursorEl.style.transform = 'translate(-50%,-50%) scale(0.7)');
+document.addEventListener('mouseup',   () => cursorEl.style.transform = 'translate(-50%,-50%) scale(1)');
+
+// ══════════════════════════════════════════════════════════════════
+// AUDIO 8-BIT
+// ══════════════════════════════════════════════════════════════════
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function beep(freq, dur, type='square', vol=0.08) {
+  try {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur/1000);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
+  } catch(e) {}
+}
+function playCorrect() {
+  beep(440,80,'square',.1);
+  setTimeout(()=>beep(660,80,'square',.1), 90);
+  setTimeout(()=>beep(880,120,'square',.12), 180);
+}
+function playWrong() {
+  beep(220,150,'sawtooth',.12);
+  setTimeout(()=>beep(160,200,'sawtooth',.1), 160);
+}
+function playPet() {
+  [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,100,'square',.1),i*110));
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CONSTANTES DE JUEGO
+// ══════════════════════════════════════════════════════════════════
+const PETS = [
+  {name:'Saltarina', emoji:'🐸', poder:'Salta bugs'},
+  {name:'Tortu',     emoji:'🐢', poder:'Escudo'},
+  {name:'Misifú',    emoji:'🐱', poder:'Vida extra'},
+  {name:'Pulgi',     emoji:'🐶', poder:'Olfato'},
+  {name:'Pinguino',  emoji:'🐧', poder:'Congela'},
+];
+
+const TOTAL_CHALLENGES = 6;
+const VMIN = 1, VMAX = 9;
+
+// ══════════════════════════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════════════════════════
+let state = {
+  score: 0,
+  streak: 0,
+  challenge: 0,
+  pet: null,
+  matA: [], matB: [], matC: [],
+  hiddenRow: 0, hiddenCol: 0,
+  hiddenVal: 0,
+  input: '',
+  timerStart: 0,
+  timerEl: null,
+  timerInterval: null,
+};
+
+// ══════════════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════════════
+function rand(min, max) { return Math.floor(Math.random()*(max-min+1))+min; }
+
+function makeMatrix(rows, cols) {
+  return Array.from({length:rows},()=>Array.from({length:cols},()=>rand(VMIN,VMAX)));
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ARRANCAR JUEGO
+// ══════════════════════════════════════════════════════════════════
+function startGame() {
+  document.getElementById('win-screen').classList.remove('show');
+  state.score = 0; state.streak = 0; state.challenge = 0; state.pet = null;
+  state.input = '';
+  updateHUD();
+  nextChallenge();
+}
+
+function nextChallenge() {
+  clearInterval(state.timerInterval);
+  state.input = '';
+  document.getElementById('pet-banner').classList.remove('show');
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+
+  const rows = 3, cols = 3;
+  state.matA = makeMatrix(rows, cols);
+  state.matB = makeMatrix(rows, cols);
+  // C = A + B
+  state.matC = state.matA.map((r,i)=>r.map((v,j)=>v+state.matB[i][j]));
+  // Ocultar una celda aleatoria de C
+  state.hiddenRow = rand(0, rows-1);
+  state.hiddenCol = rand(0, cols-1);
+  state.hiddenVal = state.matC[state.hiddenRow][state.hiddenCol];
+
+  state.timerStart = Date.now();
+  state.timerInterval = setInterval(updateTimer, 200);
+
+  updateProgress();
+  updateMatrices();
+  updateKeypad();
+  document.getElementById('challenge-title').textContent =
+    `RETO ${state.challenge+1} — ENCONTRÁ LA CELDA OCULTA`;
+}
+
+function updateTimer() {
+  const secs = ((Date.now()-state.timerStart)/1000).toFixed(1);
+  document.getElementById('timer-val').textContent = secs;
+}
+
+function updateHUD() {
+  document.getElementById('score-val').textContent  = state.score;
+  document.getElementById('streak-val').textContent = state.streak;
+  document.getElementById('pet-val').textContent    = state.pet ? `${state.pet.emoji} ${state.pet.name}` : '—';
+}
+
+function updateProgress() {
+  const pct = (state.challenge / TOTAL_CHALLENGES) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `RETO ${state.challenge} / ${TOTAL_CHALLENGES}`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RENDER MATRICES
+// ══════════════════════════════════════════════════════════════════
+function updateMatrices() {
+  const container = document.getElementById('matrices-row');
+  container.innerHTML = '';
+
+  const cols = state.matA[0].length;
+  const rows = state.matA.length;
+
+  // Helpers
+  function makeGrid(mat, labelClass, labelText, isC) {
+    const block = document.createElement('div');
+    block.className = 'matrix-block';
+
+    const lbl = document.createElement('div');
+    lbl.className = `matrix-label ${labelClass}`;
+    lbl.textContent = labelText;
+    block.appendChild(lbl);
+
+    const grid = document.createElement('div');
+    grid.className = 'matrix-grid';
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+    mat.forEach((row, ri) => {
+      row.forEach((val, ci) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const isHidden = isC && ri === state.hiddenRow && ci === state.hiddenCol;
+        if (isHidden) {
+          cell.classList.add('hidden');
+          cell.textContent = '?';
+          cell.id = 'hidden-cell';
+          cell.addEventListener('click', () => beep(880,60,'square',.06));
+        } else if (isC) {
+          cell.classList.add('highlight');
+          cell.textContent = val;
+        } else {
+          if (ri === state.hiddenRow && ci === state.hiddenCol) {
+            cell.style.borderColor = 'rgba(240,240,80,.4)';
+          }
+          cell.textContent = val;
+        }
+        grid.appendChild(cell);
+      });
+    });
+    block.appendChild(grid);
+    return block;
+  }
+
+  container.appendChild(makeGrid(state.matA, 'a', 'MATRIZ A', false));
+
+  const plus = document.createElement('div');
+  plus.className = 'op-sign';
+  plus.textContent = '+';
+  container.appendChild(plus);
+
+  container.appendChild(makeGrid(state.matB, 'b', 'MATRIZ B', false));
+
+  const eq = document.createElement('div');
+  eq.className = 'op-sign';
+  eq.textContent = '=';
+  container.appendChild(eq);
+
+  container.appendChild(makeGrid(state.matC, 'c', 'MATRIZ C', true));
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TECLADO EN PANTALLA
+// ══════════════════════════════════════════════════════════════════
+function updateKeypad() {
+  const kp = document.getElementById('keypad');
+  kp.innerHTML = '';
+  // 1-9, 0, DEL, OK
+  const keys = ['1','2','3','4','5','6','7','8','9','0','DEL','OK'];
+  keys.forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'key-btn';
+    btn.textContent = k;
+    if (k === 'OK')  { btn.style.color='var(--yellow)';btn.style.borderColor='var(--yellow)';btn.style.boxShadow='2px 2px 0 #806000'; }
+    if (k === 'DEL') { btn.style.color='var(--red)';btn.style.borderColor='var(--red)';btn.style.boxShadow='2px 2px 0 #600000'; }
+    btn.addEventListener('click', () => handleKey(k));
+    kp.appendChild(btn);
+  });
+}
+
+function handleKey(k) {
+  initAudio();
+  if (k === 'DEL') {
+    beep(330,60,'square',.06);
+    state.input = state.input.slice(0,-1);
+    showInputFeedback();
+  } else if (k === 'OK') {
+    submit();
+  } else {
+    if (state.input.length < 3) {
+      beep(660,40,'square',.05);
+      state.input += k;
+      showInputFeedback();
+    }
+  }
+}
+
+// Keyboard support
+document.addEventListener('keydown', e => {
+  if (e.key >= '0' && e.key <= '9') handleKey(e.key);
+  else if (e.key === 'Backspace') handleKey('DEL');
+  else if (e.key === 'Enter') handleKey('OK');
+});
+
+function showInputFeedback() {
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.style.color = 'var(--cyan)';
+  fb.textContent = state.input ? `ENTRADA: ${state.input}` : '';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════════════════════════
+function submit() {
+  const val = parseInt(state.input, 10);
+  if (isNaN(val)) {
+    beep(220,100,'sawtooth',.08);
+    showFeedback('✗ INGRESÁ UN NÚMERO', false);
+    return;
+  }
+
+  const elapsed = (Date.now()-state.timerStart)/1000;
+
+  if (val === state.hiddenVal) {
+    // Correcto
+    clearInterval(state.timerInterval);
+    state.streak++;
+    const bonus = state.streak >= 3 ? 20 : 0;
+    const timeBonus = elapsed < 5 ? 30 : elapsed < 10 ? 15 : 0;
+    state.score += 100 + bonus + timeBonus;
+    playCorrect();
+
+    // Revelar celda
+    const hc = document.getElementById('hidden-cell');
+    if (hc) {
+      hc.classList.remove('hidden');
+      hc.classList.add('highlight');
+      hc.textContent = val;
+    }
+
+    let msg = `✓ CORRECTO! +${100+bonus+timeBonus} PTS`;
+    if (bonus) msg += ' (RACHA!)';
+    if (timeBonus) msg += ' (VELOZ!)';
+    showFeedback(msg, true);
+
+    state.challenge++;
+    updateProgress();
+    updateHUD();
+
+    // Mascota?
+    if (state.challenge === 2 && !state.pet) {
+      const pet = PETS[Math.floor(Math.random()*PETS.length)];
+      state.pet = pet;
+      playPet();
+      setTimeout(()=>showPet(pet), 700);
+    }
+
+    if (state.challenge >= TOTAL_CHALLENGES) {
+      setTimeout(()=>showWin(), 1200);
+    } else {
+      setTimeout(()=>nextChallenge(), 1200);
+    }
+  } else {
+    state.streak = 0;
+    playWrong();
+    showFeedback(`✗ NO ES ${val} — INTENTÁ DE NUEVO`, false);
+    updateHUD();
+  }
+  state.input = '';
+}
+
+function showFeedback(msg, ok) {
+  const fb = document.getElementById('feedback');
+  fb.textContent = msg;
+  fb.className = 'feedback ' + (ok ? 'fb-correct' : 'fb-wrong');
+}
+
+function showPet(pet) {
+  const banner = document.getElementById('pet-banner');
+  document.getElementById('pet-title').textContent = `¡NUEVA MASCOTA! ${pet.emoji} ${pet.name.toUpperCase()}`;
+  document.getElementById('pet-desc').textContent  = `PODER ESPECIAL: ${pet.poder}`;
+  banner.classList.add('show');
+  updateHUD();
+  setTimeout(()=>banner.classList.remove('show'), 3000);
+}
+
+function showWin() {
+  clearInterval(state.timerInterval);
+  const ws = document.getElementById('win-screen');
+  const pet = state.pet;
+  document.getElementById('win-emoji').textContent = pet ? pet.emoji : '🔍';
+  document.getElementById('win-title').textContent = '¡CASO CERRADO! 🔍';
+  document.getElementById('win-text').innerHTML =
+    `RESOLUCIÓN: ${state.score} PUNTOS<br>` +
+    `RACHA MÁXIMA: ${state.streak} SEGUIDAS<br>` +
+    (pet ? `MASCOTA: ${pet.emoji} ${pet.name} — ${pet.poder}<br>` : '') +
+    `<br><span style="color:var(--yellow);font-size:8px;">★ DETECTIVE VETERANO ★</span>`;
+  beep(523,100,'square',.12);
+  setTimeout(()=>beep(659,100,'square',.12),110);
+  setTimeout(()=>beep(784,100,'square',.12),220);
+  setTimeout(()=>beep(1047,200,'square',.14),330);
+  ws.classList.add('show');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+startGame();
+</script>
+</body>
+</html>
