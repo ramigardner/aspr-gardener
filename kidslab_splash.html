@@ -528,6 +528,23 @@ body {
 }
 #modal-coming.show { display: flex; }
 
+/* ── MONITOR DETECTIVE ────────────────────────────────────────── */
+.monitor-demo-text.detective {
+  color: var(--c64-red);
+  text-shadow: 0 0 6px var(--c64-red);
+  font-size: 7px;
+}
+.demo-monitor.detective:hover .monitor-screen {
+  box-shadow: 0 0 14px #e050e0, inset 0 0 8px rgba(220,80,220,0.2);
+}
+.demo-monitor.detective .monitor-screen {
+  box-shadow: 0 0 8px #e050e0, inset 0 0 6px rgba(220,80,220,0.1);
+}
+.demo-monitor.detective .monitor-led {
+  background: #e050e0;
+  box-shadow: 0 0 4px #e050e0;
+}
+
 #modal-demo {
   display: none;
   position: fixed;
@@ -686,6 +703,19 @@ body {
         <div class="monitor-stand-neck"></div>
         <div class="monitor-stand-base"></div>
       </div>
+      <!-- Monitor Detective Lab -->
+      <div class="demo-monitor detective" onclick="launchDetective()" title="Detective Lab">
+        <div class="monitor-body">
+          <div class="monitor-screen">
+            <span class="monitor-demo-text detective">🔍LAB</span>
+            <span class="monitor-pixel tl"></span>
+            <span class="monitor-pixel br"></span>
+          </div>
+          <div class="monitor-led"></div>
+        </div>
+        <div class="monitor-stand-neck"></div>
+        <div class="monitor-stand-base"></div>
+      </div>
       <button class="btn-kidslab" id="btnKidslab">
         KIDS LAB
       </button>
@@ -698,7 +728,7 @@ body {
         ESTÉTICA COMMODORE 64 &nbsp;·&nbsp; PYTHON + PYGAME &nbsp;·&nbsp;
         PRÓXIMAMENTE EN KIDSLAB.IO &nbsp;·&nbsp;
         "1947: GRACE HOPPER ENCONTRÓ EL PRIMER BUG — UNA POLILLA REAL EN UNA COMPUTADORA" &nbsp;·&nbsp;
-        APRENDER JUGANDO, COMPETIR PENSANDO 🧪 &nbsp;&nbsp;&nbsp;
+        APRENDER JUGANDO, COMPETIR PENSANDO 🧪 &nbsp;·&nbsp; 🔍 DETECTIVE LAB — DESCUBRÍ LA CELDA OCULTA &nbsp;·&nbsp; MATRICES · LÓGICA · OPERACIONES &nbsp;&nbsp;&nbsp;
       </span>
     </div>
 
@@ -750,6 +780,31 @@ body {
       ▼ DESCARGAR DEMO
     </a><br><br>
     <button class="modal-close" onclick="closeDemoModal()" style="border-color:var(--c64-green);color:var(--c64-green);">[ VOLVER ]</button>
+  </div>
+</div>
+
+<!-- Modal DETECTIVE LAB -->
+<div id="modal-detective">
+  <div class="modal-box" style="border-color:#e050e0;box-shadow:0 0 40px rgba(220,80,220,0.3);">
+    <h2 style="color:#e050e0;">🔍 DETECTIVE LAB<br>── DISPONIBLE ──</h2>
+    <p>
+      <span style="color:#e050e0;">ORACLE KIDS: DETECTIVE EDITION</span><br>
+      ────────────────────────────<br>
+      Matrices A + B = C · Descubrí<br>
+      qué celda oculta el valor.<br><br>
+      <span style="color:var(--c64-yellow);">Python 3.11 · Pygame 2.5 · numpy</span><br><br>
+      <span style="color:var(--c64-grey);">pip install pygame numpy</span>
+    </p>
+    <a href="detective_lab.py" download
+       style="display:inline-block;font-family:var(--title);font-size:9px;
+              background:#000;color:#e050e0;border:2px solid #e050e0;
+              padding:10px 24px;cursor:pointer;letter-spacing:2px;margin-top:4px;
+              box-shadow:2px 2px 0 #600060;text-decoration:none;"
+       onclick="playBeep(660,100,'square',0.1);">
+      ▼ DESCARGAR DETECTIVE LAB
+    </a><br><br>
+    <button class="modal-close" onclick="closeDetectiveModal()"
+            style="border-color:#e050e0;color:#e050e0;">[ VOLVER ]</button>
   </div>
 </div>
 
@@ -1251,6 +1306,18 @@ function launchDemo() {
 function closeDemoModal() {
   playBeep(330, 60, 'square', 0.08);
   document.getElementById('modal-demo').classList.remove('show');
+}
+
+function launchDetective() {
+  playBeep(440, 40, 'square', 0.08);
+  setTimeout(() => playBeep(660, 40, 'square', 0.08), 55);
+  setTimeout(() => playBeep(880, 80, 'square', 0.1), 110);
+  document.getElementById('modal-detective').classList.add('show');
+}
+
+function closeDetectiveModal() {
+  playBeep(330, 60, 'square', 0.08);
+  document.getElementById('modal-detective').classList.remove('show');
 }
 
 function closeModal() {
