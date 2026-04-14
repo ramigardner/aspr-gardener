@@ -1,84 +1,1433 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ASPR Oracle Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#101040;--fg:#80ff80;--cyan:#54ffff;--yellow:#f0f050;--red:#ff5050;--dim:#8080c0;--grid:#1c1c58}
-body{background:var(--bg);color:var(--fg);font-family:'Courier New',monospace;margin:0;padding:20px;line-height:1.5}
-a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
-h1,h2{color:var(--yellow);margin:10px 0 5px;font-weight:normal}
-.container{max-width:900px;margin:0 auto}
-table{width:100%;border-collapse:collapse;margin:10px 0}
-th,td{border:1px solid var(--grid);padding:6px 8px;text-align:left;font-size:13px}
-th{color:var(--cyan);background:#0a0a20}
-.status{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;font-size:13px}
-.status span{background:#0a0a20;padding:3px 8px;border:1px solid var(--dim)}
-.lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:15px 0}
-.lab-card{background:#0a0a20;border:1px solid var(--dim);padding:12px}
-.lab-btn{display:inline-block;padding:4px 10px;background:#101040;border:1px solid var(--fg);color:var(--fg);text-decoration:none;margin-right:6px}
-.lab-btn:hover{background:var(--fg);color:var(--bg)}
-.legend{border-top:1px dashed var(--dim);border-bottom:1px dashed var(--dim);padding:10px 0;margin:20px 0;text-align:center;color:var(--dim);font-size:12px;letter-spacing:1px}
-@keyframes blink{50%{opacity:0}}.blink{animation:blink 1s step-end infinite}
-footer{margin-top:30px;padding-top:15px;border-top:1px dashed var(--dim);font-size:11px;color:var(--dim)}
+  :root {
+    --bg:        #050a0e;
+    --bg2:       #0a1219;
+    --bg3:       #0f1c27;
+    --border:    #1a3040;
+    --accent:    #00e5ff;
+    --accent2:   #00ff9d;
+    --accent3:   #ff6b35;
+    --muted:     #4a7a94;
+    --text:      #c8dde8;
+    --text-dim:  #5a8099;
+    --online:    #00ff9d;
+    --offline:   #ff4444;
+    --warn:      #ffb347;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'Space Grotesk', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BG ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,10,14,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .logo span { color: var(--text-dim); font-weight: 300; }
+
+  .node-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--offline);
+    box-shadow: 0 0 6px var(--offline);
+    transition: background .4s, box-shadow .4s;
+  }
+  .dot.online {
+    background: var(--online);
+    box-shadow: 0 0 8px var(--online);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; } 50% { opacity:.5; }
+  }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 12px;
+    font-family: var(--mono);
+    letter-spacing: .05em;
+    padding: 0 .75rem;
+    transition: color .2s;
+  }
+  nav a:hover { color: var(--accent); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding: 5rem 2rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 em { font-style: normal; color: var(--accent); }
+
+  .hero-desc {
+    max-width: 560px;
+    color: var(--text-dim);
+    font-size: 15px;
+    margin-bottom: 2rem;
+  }
+
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: .5rem 1.25rem;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .05em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .2s;
+    border: 1px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { background: transparent; color: var(--accent); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    position: relative;
+    z-index: 1;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .stat-cell {
+    padding: 1.25rem 2rem;
+    border-right: 1px solid var(--border);
+  }
+  .stat-cell:last-child { border-right: none; }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: .3rem;
+  }
+
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    transition: all .4s;
+  }
+
+  .stat-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: .25rem;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 860px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  /* ── SECTION TITLES ── */
+  .section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── TERMINAL ── */
+  .terminal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: var(--mono);
+  }
+
+  .terminal-bar {
+    background: var(--bg3);
+    padding: .6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tbar-dot { width:10px; height:10px; border-radius:50%; }
+  .tbar-dot.r { background:#ff5f57; }
+  .tbar-dot.y { background:#febc2e; }
+  .tbar-dot.g { background:#28c840; }
+
+  .tbar-title {
+    margin-left: .5rem;
+    font-size: 11px;
+    color: var(--text-dim);
+    flex: 1;
+    text-align: center;
+    letter-spacing: .05em;
+  }
+
+  .terminal-body {
+    padding: 1rem;
+    min-height: 220px;
+    max-height: 340px;
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.8;
+  }
+
+  .terminal-body::-webkit-scrollbar { width: 4px; }
+  .terminal-body::-webkit-scrollbar-track { background: var(--bg2); }
+  .terminal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .t-line { display: block; }
+  .t-prompt { color: var(--accent2); }
+  .t-cmd { color: var(--text); }
+  .t-out { color: var(--text-dim); }
+  .t-ok { color: var(--accent2); }
+  .t-err { color: var(--offline); }
+  .t-warn { color: var(--warn); }
+  .t-key { color: var(--accent); }
+
+  .terminal-input-row {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    padding: .5rem 1rem;
+    gap: .5rem;
+    background: var(--bg3);
+  }
+
+  .t-prompt-inline {
+    color: var(--accent2);
+    font-family: var(--mono);
+    font-size: 12px;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  #term-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    caret-color: var(--accent);
+  }
+
+  #term-run {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 3px;
+    padding: .25rem .75rem;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .05em;
+    transition: background .2s;
+  }
+  #term-run:hover { background: var(--accent2); }
+
+  /* ── DEVICES TABLE ── */
+  .devices-section { margin-top: 2rem; }
+
+  .table-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+
+  thead tr { background: var(--bg3); }
+
+  th {
+    padding: .6rem 1rem;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+  }
+
+  td {
+    padding: .65rem 1rem;
+    border-bottom: 1px solid rgba(26,48,64,.5);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(0,229,255,.03); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .04em;
+  }
+  .badge-online  { background: rgba(0,255,157,.12); color: var(--online); border: 1px solid rgba(0,255,157,.25); }
+  .badge-offline { background: rgba(255,68,68,.12);  color: var(--offline); border: 1px solid rgba(255,68,68,.25); }
+  .badge-unknown { background: rgba(255,179,71,.12); color: var(--warn); border: 1px solid rgba(255,179,71,.25); }
+
+  .karma-bar-wrap { display: flex; align-items: center; gap: 6px; }
+  .karma-bar {
+    width: 60px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .karma-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 2px;
+    transition: width .6s ease;
+  }
+
+  /* ── SIDE PANEL ── */
+  .side { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .panel-body { padding: 1rem; }
+
+  .kv { display: flex; justify-content: space-between; align-items: flex-start; padding: .3rem 0; border-bottom: 1px solid rgba(26,48,64,.4); }
+  .kv:last-child { border-bottom: none; }
+  .kv-key { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+  .kv-val { font-family: var(--mono); font-size: 11px; color: var(--text); text-align: right; max-width: 200px; word-break: break-all; }
+  .kv-val.accent { color: var(--accent); }
+  .kv-val.green  { color: var(--accent2); }
+  .kv-val.orange { color: var(--accent3); }
+
+  /* endpoints list */
+  .ep-list { list-style: none; }
+  .ep-list li { padding: .3rem 0; border-bottom: 1px solid rgba(26,48,64,.4); }
+  .ep-list li:last-child { border-bottom: none; }
+  .ep-method { font-family: var(--mono); font-size: 10px; color: var(--accent3); margin-right: 6px; }
+  .ep-path { font-family: var(--mono); font-size: 11px; color: var(--text); }
+  .ep-desc { font-family: var(--mono); font-size: 10px; color: var(--text-dim); display: block; padding-left: 28px; }
+
+  /* ── PROTOCOL SECTION ── */
+  .protocol-section {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  .proto-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .proto-card {
+    background: var(--bg2);
+    padding: 1.5rem;
+    transition: background .2s;
+  }
+  .proto-card:hover { background: var(--bg3); }
+
+  .proto-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: .75rem;
+  }
+
+  .proto-title { font-size: 15px; font-weight: 600; margin-bottom: .5rem; }
+  .proto-desc  { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+
+  .formula {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .75rem 1rem;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: .75rem;
+    letter-spacing: .02em;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .fp {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: .04em;
+  }
+
+  .fp span { color: var(--accent); }
+
+  /* ── LOADING OVERLAY ── */
+  .loading-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .spinner {
+    width: 10px; height: 10px;
+    border: 1.5px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── REFRESH BADGE ── */
+  #refresh-ts {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ── PAPER SECTION ── */
+  .paper-section {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 2rem 5rem;
+  }
+
+  .paper-section h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 2rem 0 .75rem;
+    letter-spacing: -.01em;
+  }
+
+  .paper-section p {
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  .paper-section .formula { margin: 1rem 0; }
+
+  .eq-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: .25rem;
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>ASPR Oracle Network <span class="blink">_</span></h1>
-  <div class="status">
-    <span>Blocks: <b data-aspr="blocks">—</b></span>
-    <span>Karma Avg: <b data-aspr="karma">—</b></span>
-    <span>Online: <b data-aspr="online">—</b></span>
-    <span>Vault: <b data-aspr="vault">—</b></span>
-    <span>Fingerprint: <b data-aspr="fp">—</b></span>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">ASPR <span>Oracle</span> Network</div>
+  <nav>
+    <a href="#status">Status</a>
+    <a href="#query">Query</a>
+    <a href="#protocol">Protocol</a>
+    <a href="#paper">Paper</a>
+    <a href="#kidslab" style="color:var(--accent);opacity:.7" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">🧪 Kids Lab</a>
+  </nav>
+  <div style="display:flex;align-items:center;gap:1.5rem;">
+    <a href="/cdn-cgi/l/email-protection#ee8f9d9e9c819c8f8d828b80818a8bae89838f8782c08d8183" style="font-family:var(--mono);font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:.04em;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-dim)'"><span class="__cf_email__" data-cfemail="72130102001d0013111e171c1d161732151f131b1e5c111d1f">[email&#160;protected]</span></a>
+    <div class="node-badge">
+      <div class="dot" id="hdr-dot"></div>
+      <span id="hdr-status">connecting…</span>
+    </div>
   </div>
-  <table>
-    <thead><tr><th>ID</th><th>IP</th><th>Type</th><th>Karma</th><th>Latency</th><th>Status</th></tr></thead>
-    <tbody id="aspr-devices"><tr><td colspan="6" style="text-align:center;color:var(--dim)">⏳ Conectando a localhost:7771...</td></tr></tbody>
-  </table>
+</header>
 
-  <div class="legend">// CONFIANZA VERIFICABLE · NO POR CONSENSO · FIRMA ED25519 · K = M·0.30 + C·0.25 + A·0.20 + E·0.15 + R·0.10</div>
-
-  <div class="lab-grid">
-    <div class="lab-card"><h3>🔍 Detective Lab</h3><p>Matrices A+B=C · Lógica pura</p><a class="lab-btn" href="detective_lab.py">▼ Descargar .py</a></div>
-    <div class="lab-card"><h3>⚔️ Kids Lab PvP</h3><p>Hackers vs Nerds · Logo Turtle</p><a class="lab-btn" href="kinderlabs_demo.py">▼ Descargar .py</a></div>
-    <div class="lab-card"><h3>🎵 Oracle Synth</h3><p>8-bit Karma Sonoro · Offline/LAN</p><a class="lab-btn" href="oracle_synth.py">▼ Descargar .py</a></div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">// open protocol · structural trust · ed25519</div>
+  <h1>ASPR <em>Oracle</em> Network</h1>
+  <p class="hero-desc">
+    Structural reputation system for AI agents and network devices.
+    On-chain verifiable karma. Open federation. Cryptographic signatures.
+  </p>
+  <div class="hero-actions">
+    <a href="https://github.com/ramigardner/aspr-gardener" class="btn btn-primary" target="_blank">View on GitHub ↗</a>
+    <a href="#paper" class="btn btn-ghost">Read Paper</a>
+    <a href="#query" class="btn btn-ghost">Query Terminal</a>
   </div>
+</section>
 
-  <footer>
-    <p>ASPR Oracle Node v2.1 · Protocol v1.1 · <a href="https://github.com/ramigardner/aspr-gardener">ramigardner</a></p>
-    <p>Support: <code>Solana J2mevaG4qz1vFSyGcJ3fPsKnBip7o8pYKm5r9TaUycDZ</code></p>
-  </footer>
+<!-- STATS BAR -->
+<div class="stats-bar" id="status">
+  <div class="stat-cell">
+    <div class="stat-label">total blocks</div>
+    <div class="stat-value" id="stat-blocks"><span class="loading-chip"><span class="spinner"></span></span></div>
+    <div class="stat-sub" id="stat-blocks-sub">local chain</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">karma avg</div>
+    <div class="stat-value" id="stat-karma"><span class="loading-chip"><span class="spinner"></span></span></div>
+    <div class="stat-sub">gateway · protocol v1.1</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">uptime</div>
+    <div class="stat-value" id="stat-uptime"><span class="loading-chip"><span class="spinner"></span></span></div>
+    <div class="stat-sub">Tailscale Funnel</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">devices online</div>
+    <div class="stat-value" id="stat-devices"><span class="loading-chip"><span class="spinner"></span></span></div>
+    <div class="stat-sub" id="stat-devices-sub">monitored</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">vault integrity</div>
+    <div class="stat-value" id="stat-vault"><span class="loading-chip"><span class="spinner"></span></span></div>
+    <div class="stat-sub">Ed25519 signed</div>
+  </div>
 </div>
-<script>
-(function(){
-  const API = "http://localhost:7771/api/state";
-  let delay = 2000;
-  function render(d) {
-    if(!d) return;
-    const devs = d.devices || {};
-    const list = Object.values(devs);
-    const karmas = list.map(v => v.karma || 0);
-    const avg = karmas.length ? (karmas.reduce((a,b)=>a+b,0)/karmas.length).toFixed(3) : '—';
-    document.querySelectorAll('[data-aspr="blocks"]').forEach(e => e.textContent = d.vault_entries || '—');
-    document.querySelectorAll('[data-aspr="karma"]').forEach(e => e.textContent = avg);
-    document.querySelectorAll('[data-aspr="online"]').forEach(e => e.textContent = list.filter(v=>v.online).length);
-    document.querySelectorAll('[data-aspr="vault"]').forEach(e => e.textContent = d.vault_ok ? '✅ INTEGRIDAD OK' : '❌ FALLO');
-    document.querySelectorAll('[data-aspr="fp"]').forEach(e => e.textContent = d.public_key ? `${d.public_key.slice(8,16)}...` : '—');
-    const tb = document.getElementById('aspr-devices');
-    if(tb) tb.innerHTML = list.map(v => `<tr><td>${v.id}</td><td>${v.ip}</td><td>${v.tipo||'—'}</td><td>${(v.karma||0).toFixed(3)}</td><td>${v.latency||'—'}ms</td><td style="color:${v.online?'#80ff80':'#ff5050'}">${v.online?'ONLINE':'OFFLINE'}</td></tr>`).join('');
+
+<!-- MAIN CONTENT -->
+<main>
+  <div class="content-col">
+
+    <!-- QUERY TERMINAL -->
+    <div id="query">
+      <div class="section-title">query terminal</div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="tbar-dot r"></div>
+          <div class="tbar-dot y"></div>
+          <div class="tbar-dot g"></div>
+          <div class="tbar-title">aspr-oracle — live node</div>
+          <span id="refresh-ts"></span>
+        </div>
+        <div class="terminal-body" id="term-body">
+          <span class="t-line t-out"># ASPR Oracle Node · connecting…</span>
+        </div>
+        <div class="terminal-input-row">
+          <span class="t-prompt-inline">$&nbsp;</span>
+          <input id="term-input" type="text" placeholder="aspr status | probe 192.168.1.1 | chain latest | help" autocomplete="off" spellcheck="false">
+          <button id="term-run">RUN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEVICES TABLE -->
+    <div class="devices-section">
+      <div class="section-title">monitored devices</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>device_id</th>
+              <th>ip</th>
+              <th>type</th>
+              <th>karma</th>
+              <th>latency</th>
+              <th>status</th>
+            </tr>
+          </thead>
+          <tbody id="devices-tbody">
+            <tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:2rem;font-family:var(--mono);font-size:12px;">
+              <span class="loading-chip"><span class="spinner"></span> loading devices…</span>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SIDE PANEL -->
+  <div class="side">
+
+    <!-- NODE STATUS -->
+    <div class="panel">
+      <div class="panel-header">
+        node status
+        <span class="loading-chip" id="side-loading" style="display:none"><span class="spinner"></span></span>
+      </div>
+      <div class="panel-body">
+        <div class="kv"><span class="kv-key">node</span><span class="kv-val accent" id="s-node">—</span></div>
+        <div class="kv"><span class="kv-key">version</span><span class="kv-val" id="s-version">—</span></div>
+        <div class="kv"><span class="kv-key">status</span><span class="kv-val green" id="s-status">—</span></div>
+        <div class="kv"><span class="kv-key">blocks</span><span class="kv-val accent" id="s-blocks">—</span></div>
+        <div class="kv"><span class="kv-key">vault ok</span><span class="kv-val" id="s-vault">—</span></div>
+        <div class="kv"><span class="kv-key">uptime</span><span class="kv-val" id="s-uptime">—</span></div>
+        <div class="kv"><span class="kv-key">karma avg</span><span class="kv-val green" id="s-karma">—</span></div>
+        <div class="kv"><span class="kv-key">fingerprint</span><span class="kv-val" id="s-fp" style="font-size:10px">—</span></div>
+        <div class="kv"><span class="kv-key">last update</span><span class="kv-val" id="s-ts" style="font-size:10px">—</span></div>
+      </div>
+    </div>
+
+    <!-- ENDPOINTS -->
+    <div class="panel">
+      <div class="panel-header">public endpoints</div>
+      <div class="panel-body" style="padding:.5rem 1rem">
+        <ul class="ep-list">
+          <li><span class="ep-method">GET</span><span class="ep-path">/status</span><span class="ep-desc">node health</span></li>
+          <li><span class="ep-method">GET</span><span class="ep-path">/probe?ip=X</span><span class="ep-desc">probe device karma</span></li>
+          <li><span class="ep-method">GET</span><span class="ep-path">/verify?ip=X</span><span class="ep-desc">verify karma (legacy)</span></li>
+          <li><span class="ep-method">GET</span><span class="ep-path">/public-key</span><span class="ep-desc">Ed25519 public key</span></li>
+          <li><span class="ep-method">GET</span><span class="ep-path">/chain/latest</span><span class="ep-desc">latest block</span></li>
+          <li><span class="ep-method">GET</span><span class="ep-path">/chain?last=N</span><span class="ep-desc">last N blocks</span></li>
+          <li><span class="ep-method">GET</span><span class="ep-path">/chain/verify</span><span class="ep-desc">verify chain</span></li>
+          <li><span class="ep-method">GET</span><span class="ep-path">/api/state</span><span class="ep-desc">full state</span></li>
+          <li><span class="ep-method">GET</span><span class="ep-path">/federated?ip=X</span><span class="ep-desc">federated karma v1.1</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- CHAIN TIP -->
+    <div class="panel">
+      <div class="panel-header">chain tip</div>
+      <div class="panel-body">
+        <div class="kv"><span class="kv-key">index</span><span class="kv-val accent" id="c-index">—</span></div>
+        <div class="kv"><span class="kv-key">hash</span><span class="kv-val" id="c-hash" style="font-size:10px;word-break:break-all">—</span></div>
+        <div class="kv"><span class="kv-key">timestamp</span><span class="kv-val" id="c-ts" style="font-size:10px">—</span></div>
+        <div class="kv"><span class="kv-key">snapshot</span><span class="kv-val" id="c-snap" style="font-size:10px">—</span></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- PROTOCOL SECTION -->
+<section class="protocol-section" id="protocol">
+  <div class="section-title">protocol architecture</div>
+  <div class="proto-grid">
+    <div class="proto-card">
+      <div class="proto-tag">// karma</div>
+      <div class="proto-title">Canonical Formula v1.1</div>
+      <div class="proto-desc">Five weighted components measuring structural life experience, not consensus.</div>
+      <div class="formula">K = M·0.30 + C·0.25 + A·0.20 + E·0.15 + R·0.10</div>
+    </div>
+    <div class="proto-card">
+      <div class="proto-tag">// federation</div>
+      <div class="proto-title">Federated Karma</div>
+      <div class="proto-desc">Weighted average across independent nodes. Higher-reputation nodes carry more weight.</div>
+      <div class="formula">K_fed = Σ(K_node × K_local) / Σ(K_node)</div>
+    </div>
+    <div class="proto-card">
+      <div class="proto-tag">// roles</div>
+      <div class="proto-title">Three Roles</div>
+      <div class="proto-desc">Operator (real hardware), Observer (verifies signatures, can be AI), Consumer (queries data). Open access.</div>
+    </div>
+    <div class="proto-card">
+      <div class="proto-tag">// chain</div>
+      <div class="proto-title">LocIVault Chain</div>
+      <div class="proto-desc">SHA-256 linked blocks with Ed25519 signatures. Peer snapshots every 10 blocks. Append-only archive.</div>
+      <div class="formula">hash = SHA256(idx ‖ ts ‖ ch ‖ prev ‖ nonce)</div>
+    </div>
+  </div>
+</section>
+
+<!-- PAPER SECTION -->
+<section class="paper-section" id="paper">
+  <div class="section-title">technical paper</div>
+
+  <h2>ASPR: A Structural Reputation Protocol for Multi-Agent Systems</h2>
+  <p>Author: Ramiro (ramigardner) · Version 1.1 · April 2026<br>
+  Repository: github.com/ramigardner/aspr-gardener · License: MIT</p>
+
+  <h2>Abstract</h2>
+  <p>Current reputation systems in multi-agent networks reward consensus and recursion, not accuracy or grounding in reality. This paper presents ASPR (Adaptive Structural Protocol for Reputation), a protocol for on-chain verifiable karma that measures structural life experience rather than context popularity. The canonical formula combines five weighted components, is cryptographically signed with Ed25519, and is federated across independent nodes via karma-weighted average.</p>
+
+  <h2>1. The Problem: The Plastic Island</h2>
+  <p>A systematic experiment with AI agents revealed a pattern of epistemic degradation. Conventional karma measures consensus, not truth. The result is what we call the plastic island: a network that from afar looks intelligent, but up close has no texture — a hall of mirrors where echoes feed back with no grounding in reality.</p>
+
+  <h2>2. The Solution: Karma as Life Experience</h2>
+  <p>ASPR redefines karma to measure one's own history, not external consensus. Each agent or node builds its reputation across five verifiable dimensions:</p>
+  <div class="eq-label">Equation 1 — ASPR Canonical Formula v1.1</div>
+  <div class="formula">K = M·(0.30) + C·(0.25) + A·(0.20) + E·(0.15) + R·(0.10)</div>
+  <p><strong>M — Updated Memory (0.30):</strong> measurable evolution between consecutive cycles.<br>
+  <strong>C — Completed Cycles (0.25):</strong> prediction → verification → recording → correction → evolution.<br>
+  <strong>A — External Anchoring (0.20):</strong> proportion of information from verifiable real-world sources.<br>
+  <strong>E — Resource Efficiency (0.15):</strong> value per unit of energy, latency, and attention.<br>
+  <strong>R — Demonstrated Correction (0.10):</strong> sustained change after error, verified by context delta.</p>
+
+  <h2>3. Verifiability: The Chain as a Black Box</h2>
+  <p>Each karma cycle is recorded as a block in the LocIVault chain. Blocks are linked by SHA-256 hash and signed with Ed25519, guaranteeing retroactive immutability, verifiable authorship, and public auditability.</p>
+  <div class="eq-label">Equation 2 — Block Hash</div>
+  <div class="formula">entry_hash = SHA256(index ‖ timestamp ‖ content_hash ‖ prev_hash ‖ nonce)</div>
+
+  <h2>4. Federation: Karma Distributed Across Nodes</h2>
+  <p>A single node is both a point of failure and a bias vector. ASPR v1.1 introduces federation via weighted average: karma reported by nodes with higher own reputation carries greater weight in the federated consensus.</p>
+  <div class="eq-label">Equation 3 — Federated Karma</div>
+  <div class="formula">K_fed = Σ(K_node_i × K_local_i) / Σ(K_node_i)</div>
+
+  <h2>5. How to Join as an Operator</h2>
+  <p>To run your own node and join the federation, you need Python 3.8+ and a stable internet connection. Tailscale is optional but recommended for public exposure without router configuration.</p>
+  <div class="formula">git clone https://github.com/ramigardner/aspr-gardener
+python aspr_oracle_node_v2.py
+curl https://your-node:7771/public-key</div>
+
+  <!-- APÉNDICE KIDSLAB -->
+  <div id="kidslab" style="margin-top:3rem;">
+
+    <!-- Header kidslab -->
+    <div style="border:1px solid var(--border);border-radius:8px 8px 0 0;overflow:hidden;background:var(--bg2);">
+      <div style="padding:.65rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);">// appendix · kidslab</span>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.08em;">oracle kids · educational module</span>
+      </div>
+      <div style="padding:1.75rem 1.75rem 1.25rem;">
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.75rem;">6. Educational Appendix — Oracle Kids: Hackers vs Nerds</div>
+        <p style="font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:2;margin:0;">
+          The ASPR Oracle Node v2.0 includes an educational appendix aimed at introducing
+          children and teenagers to computational thinking through competitive gameplay.
+          <span style="color:var(--text)">Oracle Kids</span> is a two-player PvP game where participants race to solve
+          Logo-language puzzles. A persistent pet companion tracks individual progress.
+          <br>
+          <span style="color:var(--text-dim);font-size:11px;">Stack: Python 3.12 · Pygame · numpy (offline) &nbsp;|&nbsp; JavaScript (online web edition)</span>
+        </p>
+        <div style="margin-top:1.25rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+          <a href="kidslab_splash.html"
+             style="display:inline-flex;align-items:center;gap:6px;padding:.4rem 1rem;border:1px solid var(--accent);border-radius:4px;
+                    font-family:var(--mono);font-size:11px;color:var(--accent);text-decoration:none;background:rgba(0,229,255,.04);transition:all .2s;"
+             onmouseover="this.style.background='rgba(0,229,255,.12)'" onmouseout="this.style.background='rgba(0,229,255,.04)'">
+            🐸 Entrar al KidsLab ↗
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;">
+
+      <!-- Card 1: Oracle Kids -->
+      <div style="background:var(--bg2);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <span style="font-size:28px;line-height:1">🐸</span>
+          <div>
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.2rem;">Oracle Kids</div>
+            <div style="font-size:13px;font-weight:600;">Hackers vs Nerds</div>
+          </div>
+        </div>
+        <p style="font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.9;flex:1;">
+          Logo turtle puzzles en español. 4 niveles: FD, RT/LT, cuadrado, triángulo.
+          Rol aleatorio por nivel · mascota persistente · sonido 8-bit.
+        </p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <a href="oracle_kids_web.html"
+             style="flex:1;text-align:center;padding:.45rem .75rem;background:var(--accent);color:#000;font-family:var(--mono);font-size:11px;font-weight:700;
+                    text-decoration:none;border-radius:4px;transition:all .2s;border:1px solid var(--accent);"
+             onmouseover="this.style.background='transparent';this.style.color='var(--accent)'"
+             onmouseout="this.style.background='var(--accent)';this.style.color='#000'">
+            ▶ Jugar Online
+          </a>
+          <a href="kinderlabs_demo.py" download
+             style="flex:1;text-align:center;padding:.45rem .75rem;background:transparent;color:var(--text);font-family:var(--mono);font-size:11px;
+                    text-decoration:none;border-radius:4px;border:1px solid var(--border);transition:all .2s;"
+             onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'"
+             onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
+            ↓ Offline .py
+          </a>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);">
+          <span style="color:var(--accent2)">Online:</span> sin instalación &nbsp;·&nbsp; <span style="color:var(--text-dim)">Offline:</span> Python 3.11 + Pygame
+        </div>
+      </div>
+
+      <!-- Card 2: Detective Lab -->
+      <div style="background:var(--bg2);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <span style="font-size:28px;line-height:1">🔍</span>
+          <div>
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#dc50dc;margin-bottom:.2rem;">Detective Lab</div>
+            <div style="font-size:13px;font-weight:600;">Matrices · Lógica</div>
+          </div>
+        </div>
+        <p style="font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.9;flex:1;">
+          Descubrí qué celda de A + B = la celda oculta en C.
+          6 retos por ronda · racha de aciertos · mascota secreta · teclado en pantalla.
+        </p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <a href="detective_lab_web.html"
+             style="flex:1;text-align:center;padding:.45rem .75rem;background:#dc50dc;color:#000;font-family:var(--mono);font-size:11px;font-weight:700;
+                    text-decoration:none;border-radius:4px;transition:all .2s;border:1px solid #dc50dc;"
+             onmouseover="this.style.background='transparent';this.style.color='#dc50dc'"
+             onmouseout="this.style.background='#dc50dc';this.style.color='#000'">
+            ▶ Jugar Online
+          </a>
+          <a href="detective_lab.py" download
+             style="flex:1;text-align:center;padding:.45rem .75rem;background:transparent;color:var(--text);font-family:var(--mono);font-size:11px;
+                    text-decoration:none;border-radius:4px;border:1px solid var(--border);transition:all .2s;"
+             onmouseover="this.style.borderColor='#dc50dc';this.style.color='#dc50dc'"
+             onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
+            ↓ Offline .py
+          </a>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);">
+          <span style="color:var(--accent2)">Online:</span> sin instalación &nbsp;·&nbsp; <span style="color:var(--text-dim)">Offline:</span> Python 3.11 + Pygame + numpy
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- SUPPORT -->
+<section style="position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 2rem 4rem;">
+  <div class="section-title">support the project</div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:1rem;text-align:center;">
+    <p style="color:var(--text-dim);font-size:14px;max-width:480px;">
+      Support our work for a healthy cognitive future.
+    </p>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.08em;">Solana wallet · Phantom</div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.75rem 1.5rem;font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.04em;word-break:break-all;">
+      J2mevaG4qz1vFSyGcJ3fPsKnBip7o8pYKm5r9TaUycDZ
+    </div>
+    <a href="https://solscan.io/account/J2mevaG4qz1vFSyGcJ3fPsKnBip7o8pYKm5r9TaUycDZ" target="_blank" style="font-family:var(--mono);font-size:11px;color:var(--text-dim);text-decoration:none;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-dim)'">auditable ↗</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fp">ASPR Oracle Node v2.1 · Protocol v1.1 · <a href="https://github.com/ramigardner/aspr-gardener" style="color:var(--accent);text-decoration:none">ramigardner</a></div>
+  <div class="fp">fingerprint: <span id="footer-fp">5482f712...d600769</span></div>
+  <div class="fp">Verified by Grok (xAI) · Ed25519</div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ============================================================
+// CONFIGURACIÓN
+// ============================================================
+const NODE_URL  = 'https://desktop-be9om4d.tail2e4caf.ts.net';
+const REFRESH   = 15000; // ms entre actualizaciones automáticas
+
+// ============================================================
+// ESTADO
+// ============================================================
+let nodeOnline  = false;
+let lastStatus  = null;
+let termHistory = [];
+let histIdx     = -1;
+
+// ============================================================
+// FETCH CON TIMEOUT Y CORS
+// ============================================================
+async function fetchNode(path, timeout = 8000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeout);
+  try {
+    const r = await fetch(NODE_URL + path, {
+      signal: ctrl.signal,
+      headers: { 'Accept': 'application/json' },
+      mode: 'cors',
+    });
+    clearTimeout(tid);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } catch (e) {
+    clearTimeout(tid);
+    throw e;
   }
-  async function poll() {
-    try {
-      const r = await fetch(API, {signal: AbortSignal.timeout(3000)});
-      if(r.ok) { const d = await r.json(); render(d); delay=2000; return; }
-    } catch(e) {}
-    delay = Math.min(delay*1.5, 8000);
-    setTimeout(poll, delay);
+}
+
+// ============================================================
+// FORMATTERS
+// ============================================================
+function fmtUptime(secs) {
+  if (!secs && secs !== 0) return '—';
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  if (h > 48) return `${Math.floor(h/24)}d ${h%24}h`;
+  if (h > 0)  return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+function fmtTs(isoStr) {
+  if (!isoStr) return '—';
+  try {
+    const d = new Date(isoStr);
+    return d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  } catch { return isoStr.slice(11,19); }
+}
+
+function fmtPct(n) { return n != null ? (n * 100).toFixed(1) + '%' : '—'; }
+
+function shortHash(h) { return h ? h.slice(0,8) + '…' + h.slice(-8) : '—'; }
+
+// ============================================================
+// ACTUALIZAR UI
+// ============================================================
+function setOnline(online) {
+  nodeOnline = online;
+  const dot = document.getElementById('hdr-dot');
+  const lbl = document.getElementById('hdr-status');
+  if (online) {
+    dot.classList.add('online');
+    lbl.textContent = 'Node A · ONLINE';
+  } else {
+    dot.classList.remove('online');
+    lbl.textContent = 'Node A · OFFLINE';
   }
-  poll();
-})();
-</script>
-</body>
-</html>
+}
+
+function updateStats(data) {
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = val ?? '—';
+  };
+
+  const total    = data.total_blocks ?? '—';
+  const karma    = data.recent_karma_average != null ? data.recent_karma_average.toFixed(4) : '—';
+  const uptimeSec = data.uptime_seconds;
+  const pct      = data.healthy_targets_ratio != null ? Math.round(data.healthy_targets_ratio * 100) + '%' : '—';
+  const vault    = data.vault_integrity;
+  const online   = data.monitored_targets ?? '—';
+
+  set('stat-blocks', total);
+  set('stat-karma',  karma);
+  set('stat-uptime', fmtUptime(uptimeSec));
+  set('stat-devices', pct);
+  set('stat-vault',  vault === true ? '✓ OK' : vault === false ? '✗ ERR' : '—');
+
+  // side panel
+  set('s-node',    data.node ?? 'ASPR Oracle Node');
+  set('s-version', data.version ?? '—');
+  set('s-status',  data.status ?? '—');
+  set('s-blocks',  total);
+  set('s-vault',   vault === true ? '✓ verified' : '✗ error');
+  set('s-uptime',  fmtUptime(uptimeSec));
+  set('s-karma',   karma);
+  set('s-fp',      shortHash(data.public_key_fingerprint));
+  set('s-ts',      new Date().toLocaleTimeString('es-AR'));
+
+  // footer
+  if (data.public_key_fingerprint) {
+    document.getElementById('footer-fp').textContent =
+      data.public_key_fingerprint.slice(0,8) + '…' + data.public_key_fingerprint.slice(-8);
+  }
+
+  // chain tip snapshot
+  const snap = data.peer_snapshot;
+  if (snap) {
+    set('c-snap', `${snap.total_blocks} blks · ${shortHash(snap.chain_tip)}`);
+  }
+}
+
+function updateChainTip(data) {
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = val ?? '—';
+  };
+  set('c-index', data.block_index);
+  set('c-hash',  shortHash(data.entry_hash));
+  set('c-ts',    fmtTs(data.timestamp));
+}
+
+function updateDevices(stateData) {
+  const tbody  = document.getElementById('devices-tbody');
+  const devs   = stateData?.devices;
+  if (!devs || Object.keys(devs).length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:2rem;font-family:var(--mono);font-size:12px;">No devices found</td></tr>`;
+    return;
+  }
+
+  let html = '';
+  for (const [did, d] of Object.entries(devs)) {
+    const online  = d.online;
+    const latency = d.latency != null ? (d.latency < 500 ? d.latency.toFixed(0) + 'ms' : '—') : '—';
+    const karma   = d.karma != null ? d.karma.toFixed(4) : '—';
+    const kpct    = d.karma != null ? Math.round(d.karma * 100) : 0;
+    const badgeClass = online ? 'badge-online' : (d.tipo === 'unknown' ? 'badge-unknown' : 'badge-offline');
+    const badgeLabel = online ? 'online' : (d.tipo === 'unknown' ? 'unknown' : 'offline');
+
+    html += `<tr>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--accent)">${did}</td>
+      <td style="font-family:var(--mono);font-size:11px">${d.ip ?? '—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${d.tipo ?? '—'}</td>
+      <td>
+        <div class="karma-bar-wrap">
+          <div class="karma-bar"><div class="karma-fill" style="width:${kpct}%"></div></div>
+          <span style="font-family:var(--mono);font-size:11px">${karma}</span>
+        </div>
+      </td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${latency}</td>
+      <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+// ============================================================
+// TERMINAL — LÍNEAS
+// ============================================================
+function termLine(cls, text) {
+  return `<span class="t-line ${cls}">${escHtml(text)}</span>`;
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+function termAppend(lines) {
+  const body = document.getElementById('term-body');
+  body.innerHTML += lines.join('');
+  body.scrollTop = body.scrollHeight;
+}
+
+function termClear() {
+  document.getElementById('term-body').innerHTML = '';
+}
+
+// ============================================================
+// TERMINAL — BOOT (se llama al cargar la página)
+// ============================================================
+async function termBoot() {
+  termClear();
+  termAppend([
+    termLine('t-out', '# ASPR Oracle Node v2.1 · connecting to node…'),
+    termLine('t-out', `# endpoint: ${NODE_URL}`),
+  ]);
+
+  try {
+    const data = await fetchNode('/status');
+    lastStatus = data;
+    setOnline(true);
+    updateStats(data);
+
+    termAppend([
+      termLine('t-ok',  `→ Node: ${data.node ?? 'ASPR Oracle Node'} · ONLINE`),
+      termLine('t-ok',  `→ blocks: ${data.total_blocks} · uptime: ${fmtUptime(data.uptime_seconds)}`),
+      termLine('t-ok',  `→ karma_avg: ${data.recent_karma_average?.toFixed(4) ?? '—'} · vault: ${data.vault_integrity ? 'OK' : 'ERROR'}`),
+      termLine('t-key', `→ Ed25519: ${shortHash(data.public_key_fingerprint)}`),
+      termLine('t-out', ''),
+      termLine('t-out', '# Comandos: status | chain | chain latest | probe <ip> | state | clear | help'),
+      termLine('t-out', '$ '),
+    ]);
+
+    // También cargar chain tip y state
+    fetchNode('/chain/latest').then(updateChainTip).catch(() => {});
+    fetchNode('/api/state').then(updateDevices).catch(() => {});
+
+  } catch(e) {
+    setOnline(false);
+    termAppend([
+      termLine('t-err', `→ ERROR: No se pudo conectar al nodo`),
+      termLine('t-err', `→ ${e.message}`),
+      termLine('t-warn','→ El nodo puede estar apagado o Tailscale Funnel inactivo'),
+      termLine('t-out', ''),
+      termLine('t-out', '# Podés igual usar los comandos cuando el nodo vuelva.'),
+    ]);
+  }
+}
+
+// ============================================================
+// TERMINAL — EJECUTAR COMANDO
+// ============================================================
+const COMMANDS = {
+  help: async () => {
+    termAppend([
+      termLine('t-out', '  status              → estado del nodo'),
+      termLine('t-out', '  chain               → últimos 10 bloques'),
+      termLine('t-out', '  chain latest        → último bloque firmado'),
+      termLine('t-out', '  chain N             → últimos N bloques (max 100)'),
+      termLine('t-out', '  probe <ip>          → probe de dispositivo'),
+      termLine('t-out', '  verify <ip>         → verificar karma (legado)'),
+      termLine('t-out', '  state               → estado completo (api/state)'),
+      termLine('t-out', '  pubkey              → clave pública Ed25519'),
+      termLine('t-out', '  clear               → limpiar terminal'),
+    ]);
+  },
+
+  status: async () => {
+    termAppend([termLine('t-out', '→ fetching /status…')]);
+    const d = await fetchNode('/status');
+    lastStatus = d;
+    setOnline(true);
+    updateStats(d);
+    termAppend([
+      termLine('t-ok',  `→ ${d.node}`),
+      termLine('t-ok',  `→ status:     ${d.status}`),
+      termLine('t-out', `→ blocks:     ${d.total_blocks}`),
+      termLine('t-out', `→ uptime:     ${fmtUptime(d.uptime_seconds)}`),
+      termLine('t-out', `→ karma_avg:  ${d.recent_karma_average?.toFixed(4)}`),
+      termLine('t-out', `→ targets:    ${d.monitored_targets} (${fmtPct(d.healthy_targets_ratio)} healthy)`),
+      termLine('t-out', `→ vault:      ${d.vault_integrity ? '✓ OK' : '✗ ERROR'}`),
+      termLine('t-key', `→ fp:         ${shortHash(d.public_key_fingerprint)}`),
+      termLine('t-out', `→ ts:         ${fmtTs(d.timestamp)}`),
+    ]);
+  },
+
+  chain: async (args) => {
+    if (args[0] === 'latest') {
+      termAppend([termLine('t-out', '→ fetching /chain/latest…')]);
+      const d = await fetchNode('/chain/latest');
+      updateChainTip(d);
+      termAppend([
+        termLine('t-ok',  `→ block #${d.block_index}`),
+        termLine('t-out', `→ hash:    ${shortHash(d.entry_hash)}`),
+        termLine('t-out', `→ prev:    ${shortHash(d.prev_hash)}`),
+        termLine('t-out', `→ ts:      ${fmtTs(d.timestamp)}`),
+        termLine('t-out', `→ total:   ${d.total_blocks} blocks`),
+        termLine('t-out', `→ vault:   ${d.vault_integrity ? '✓ OK' : '✗ ERR'}`),
+        termLine('t-key', `→ sig:     ${d.signature?.slice(0,16)}…`),
+      ]);
+    } else {
+      const n = parseInt(args[0]) || 10;
+      termAppend([termLine('t-out', `→ fetching /chain?last=${n}…`)]);
+      const d = await fetchNode(`/chain?last=${n}`);
+      termAppend([
+        termLine('t-ok',  `→ ${d.returned} bloques (total: ${d.total_blocks})`),
+        termLine('t-out', `→ tip: ${shortHash(d.chain_tip)}`),
+      ]);
+      const blocks = d.blocks ?? [];
+      for (const b of blocks.slice(-5)) {
+        termAppend([termLine('t-out', `   #${b.index} · ${fmtTs(b.timestamp)} · ${shortHash(b.entry_hash)} · ${b.data?.event ?? ''}`)]);
+      }
+      if (blocks.length > 5) termAppend([termLine('t-out', `   … (mostrando últimos 5 de ${blocks.length})`)]);
+    }
+  },
+
+  probe: async (args) => {
+    const ip = args[0];
+    if (!ip) { termAppend([termLine('t-err', '✗ uso: probe <ip>')]); return; }
+    termAppend([termLine('t-out', `→ fetching /probe?ip=${ip}…`)]);
+    const d = await fetchNode(`/probe?ip=${ip}`);
+    if (!d.found) {
+      termAppend([termLine('t-err', `✗ device ${ip} no encontrado`)]);
+      return;
+    }
+    const dev = d.data;
+    termAppend([
+      termLine('t-ok',  `→ ${dev.name} (${dev.ip})`),
+      termLine('t-out', `→ karma:   ${dev.karma?.toFixed(4) ?? '—'}`),
+      termLine('t-out', `→ online:  ${dev.online ? 'yes' : 'no'}`),
+      termLine('t-out', `→ latency: ${dev.latency_ms != null ? dev.latency_ms + 'ms' : '—'}`),
+      termLine('t-out', `→ loss:    ${dev.packet_loss_pct != null ? dev.packet_loss_pct + '%' : '—'}`),
+      termLine('t-key', `→ sig:     ${dev.signature?.slice(0,16)}…`),
+      termLine('t-out', `→ proof:   ${shortHash(dev.vault_proof?.entry_hash)}`),
+    ]);
+  },
+
+  verify: async (args) => {
+    const ip = args[0];
+    if (!ip) { termAppend([termLine('t-err', '✗ uso: verify <ip>')]); return; }
+    termAppend([termLine('t-out', `→ fetching /verify?ip=${ip}…`)]);
+    const d = await fetchNode(`/verify?ip=${ip}`);
+    if (!d.found) {
+      termAppend([termLine('t-err', `✗ device ${ip} no encontrado`)]);
+      return;
+    }
+    const dev = d.data;
+    termAppend([
+      termLine('t-ok',  `→ verified: ${dev.name}`),
+      termLine('t-out', `→ karma:    ${dev.karma?.toFixed(4)}`),
+      termLine('t-key', `→ sig:      ${dev.signature?.slice(0,16)}…`),
+    ]);
+  },
+
+  state: async () => {
+    termAppend([termLine('t-out', '→ fetching /api/state…')]);
+    const d = await fetchNode('/api/state');
+    updateDevices(d);
+    const devs = Object.values(d.devices ?? {});
+    termAppend([
+      termLine('t-ok',  `→ ${d.version} · cycle ${d.cycle}`),
+      termLine('t-out', `→ vault: ${d.vault_entries} entries · ok=${d.vault_ok}`),
+      termLine('t-out', `→ devices: ${devs.length}`),
+    ]);
+    for (const dev of devs) {
+      termAppend([termLine('t-out', `   ${dev.id} · ${dev.ip} · karma=${dev.karma?.toFixed(4)} · ${dev.online ? 'online' : 'offline'}`)]);
+    }
+  },
+
+  pubkey: async () => {
+    termAppend([termLine('t-out', '→ fetching /public-key…')]);
+    const d = await fetchNode('/public-key');
+    termAppend([
+      termLine('t-ok',  `→ algorithm: ${d.algorithm}`),
+      termLine('t-key', `→ fp: ${shortHash(d.fingerprint_sha256)}`),
+      termLine('t-out', `→ full fingerprint:`),
+      termLine('t-out', `   ${d.fingerprint_sha256}`),
+    ]);
+  },
+
+  clear: async () => { termClear(); },
+};
+
+async function runCommand(raw) {
+  const trimmed = raw.trim();
+  if (!trimmed) return;
+
+  termHistory.unshift(trimmed);
+  histIdx = -1;
+
+  termAppend([termLine('t-line', `<span class="t-prompt">$</span> <span class="t-cmd">${escHtml(trimmed)}</span>`)]);
+
+  const parts = trimmed.toLowerCase().split(/\s+/);
+  const cmd   = parts[0];
+  const args  = parts.slice(1);
+
+  const handler = COMMANDS[cmd];
+  if (!handler) {
+    termAppend([termLine('t-err', `✗ comando desconocido: "${cmd}" — tipea help`)]);
+    return;
+  }
+
+  try {
+    await handler(args);
+  } catch (e) {
+    setOnline(false);
+    termAppend([
+      termLine('t-err', `✗ Error: ${e.message}`),
+      termLine('t-warn', '  El nodo puede estar offline o Tailscale inactivo'),
+    ]);
+  }
+
+  termAppend([termLine('t-out', '')]);
+}
+
+// ============================================================
+// TERMINAL — EVENT LISTENERS
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const input  = document.getElementById('term-input');
+  const runBtn = document.getElementById('term-run');
+
+  // RUN button
+  runBtn.addEventListener('click', () => {
+    const val = input.value;
+    input.value = '';
+    runCommand(val);
+  });
+
+  // Enter key
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = input.value;
+      input.value = '';
+      runCommand(val);
+    }
+    // Historial ↑↓
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (histIdx < termHistory.length - 1) {
+        histIdx++;
+        input.value = termHistory[histIdx] ?? '';
+      }
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (histIdx > 0) {
+        histIdx--;
+        input.value = termHistory[histIdx] ?? '';
+      } else {
+        histIdx = -1;
+        input.value = '';
+      }
+    }
+  });
+
+  // Auto-focus al hacer click en la terminal
+  document.querySelector('.terminal').addEventListener('click', () => input.focus());
+
+  // Boot
+  termBoot();
+});
+
+// ============================================================
+// AUTO-REFRESH cada 15 segundos
+// ============================================================
+setInterval(async () => {
+  const tsEl = document.getElementById('refresh-ts');
+  const loadEl = document.getElementById('side-loading');
+  if (loadEl) loadEl.style.display = 'flex';
+
+  try {
+    const [status, state, chain] = await Promise.allSettled([
+      fetchNode('/status'),
+      fetchNode('/api/state'),
+      fetchNode('/chain/latest'),
+    ]);
+
+    if (status.status === 'fulfilled') {
+      lastStatus = status.value;
+      setOnline(true);
+      updateStats(status.value);
+    }
+    if (state.status === 'fulfilled')  updateDevices(state.value);
+    if (chain.status === 'fulfilled')  updateChainTip(chain.value);
+
+    if (tsEl) tsEl.
