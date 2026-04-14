@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0052)https://ramigardner.github.io/aspr-gardener/#kidslab -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ASPR Oracle Network</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./ASPR Oracle Network_files/css2" rel="stylesheet">
 <style>
   :root {
     --bg:        #050a0e;
@@ -85,6 +85,7 @@
     font-family: var(--mono);
     font-size: 11px;
     color: var(--text-dim);
+    cursor: pointer;
   }
 
   .dot {
@@ -600,15 +601,15 @@
 <header>
   <div class="logo">ASPR <span>Oracle</span> Network</div>
   <nav>
-    <a href="#status">Status</a>
-    <a href="#query">Query</a>
-    <a href="#protocol">Protocol</a>
-    <a href="#paper">Paper</a>
-    <a href="#kidslab" style="color:var(--accent);opacity:.7" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">🧪 Kids Lab</a>
+    <a href="https://ramigardner.github.io/aspr-gardener/#status">Status</a>
+    <a href="https://ramigardner.github.io/aspr-gardener/#query">Query</a>
+    <a href="https://ramigardner.github.io/aspr-gardener/#protocol">Protocol</a>
+    <a href="https://ramigardner.github.io/aspr-gardener/#paper">Paper</a>
+    <a href="https://ramigardner.github.io/aspr-gardener/#kidslab" style="color: var(--accent); opacity: 0.7;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">🧪 Kids Lab</a>
   </nav>
   <div style="display:flex;align-items:center;gap:1.5rem;">
-    <a href="/cdn-cgi/l/email-protection#ee8f9d9e9c819c8f8d828b80818a8bae89838f8782c08d8183" style="font-family:var(--mono);font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:.04em;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-dim)'"><span class="__cf_email__" data-cfemail="72130102001d0013111e171c1d161732151f131b1e5c111d1f">[email&#160;protected]</span></a>
-    <div class="node-badge">
+    <a href="https://ramigardner.github.io/cdn-cgi/l/email-protection#ae8f9d9e9c819c8f8d828b80818a8bae89838f8782c08d8183" style="font-family:var(--mono);font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:.04em;" onmouseover="this.style.color=&#39;var(--accent)&#39;" onmouseout="this.style.color=&#39;var(--text-dim)&#39;"><span class="__cf_email__" data-cfemail="72130102001d0013111e171c1d161732151f131b1e5c111d1f">[email&nbsp;protected]</span></a>
+    <div class="node-badge" onclick="forceReconnect()" title="Click para reintentar conexión">
       <div class="dot" id="hdr-dot"></div>
       <span id="hdr-status">connecting…</span>
     </div>
@@ -625,8 +626,8 @@
   </p>
   <div class="hero-actions">
     <a href="https://github.com/ramigardner/aspr-gardener" class="btn btn-primary" target="_blank">View on GitHub ↗</a>
-    <a href="#paper" class="btn btn-ghost">Read Paper</a>
-    <a href="#query" class="btn btn-ghost">Query Terminal</a>
+    <a href="https://ramigardner.github.io/aspr-gardener/#paper" class="btn btn-ghost">Read Paper</a>
+    <a href="https://ramigardner.github.io/aspr-gardener/#query" class="btn btn-ghost">Query Terminal</a>
   </div>
 </section>
 
@@ -855,10 +856,8 @@ curl https://your-node:7771/public-key</div>
           <span style="color:var(--text-dim);font-size:11px;">Stack: Python 3.12 · Pygame · numpy (offline) &nbsp;|&nbsp; JavaScript (online web edition)</span>
         </p>
         <div style="margin-top:1.25rem;display:flex;gap:.75rem;flex-wrap:wrap;">
-          <a href="kidslab_splash.html"
-             style="display:inline-flex;align-items:center;gap:6px;padding:.4rem 1rem;border:1px solid var(--accent);border-radius:4px;
-                    font-family:var(--mono);font-size:11px;color:var(--accent);text-decoration:none;background:rgba(0,229,255,.04);transition:all .2s;"
-             onmouseover="this.style.background='rgba(0,229,255,.12)'" onmouseout="this.style.background='rgba(0,229,255,.04)'">
+          <a href="https://ramigardner.github.io/aspr-gardener/kidslab_splash.html" style="display:inline-flex;align-items:center;gap:6px;padding:.4rem 1rem;border:1px solid var(--accent);border-radius:4px;
+                    font-family:var(--mono);font-size:11px;color:var(--accent);text-decoration:none;background:rgba(0,229,255,.04);transition:all .2s;" onmouseover="this.style.background=&#39;rgba(0,229,255,.12)&#39;" onmouseout="this.style.background=&#39;rgba(0,229,255,.04)&#39;">
             🐸 Entrar al KidsLab ↗
           </a>
         </div>
@@ -882,18 +881,12 @@ curl https://your-node:7771/public-key</div>
           Rol aleatorio por nivel · mascota persistente · sonido 8-bit.
         </p>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-          <a href="oracle_kids_web.html"
-             style="flex:1;text-align:center;padding:.45rem .75rem;background:var(--accent);color:#000;font-family:var(--mono);font-size:11px;font-weight:700;
-                    text-decoration:none;border-radius:4px;transition:all .2s;border:1px solid var(--accent);"
-             onmouseover="this.style.background='transparent';this.style.color='var(--accent)'"
-             onmouseout="this.style.background='var(--accent)';this.style.color='#000'">
+          <a href="https://ramigardner.github.io/aspr-gardener/oracle_kids_web.html" style="flex:1;text-align:center;padding:.45rem .75rem;background:var(--accent);color:#000;font-family:var(--mono);font-size:11px;font-weight:700;
+                    text-decoration:none;border-radius:4px;transition:all .2s;border:1px solid var(--accent);" onmouseover="this.style.background=&#39;transparent&#39;;this.style.color=&#39;var(--accent)&#39;" onmouseout="this.style.background=&#39;var(--accent)&#39;;this.style.color=&#39;#000&#39;">
             ▶ Jugar Online
           </a>
-          <a href="kinderlabs_demo.py" download
-             style="flex:1;text-align:center;padding:.45rem .75rem;background:transparent;color:var(--text);font-family:var(--mono);font-size:11px;
-                    text-decoration:none;border-radius:4px;border:1px solid var(--border);transition:all .2s;"
-             onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'"
-             onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
+          <a href="https://ramigardner.github.io/aspr-gardener/kinderlabs_demo.py" download="" style="flex:1;text-align:center;padding:.45rem .75rem;background:transparent;color:var(--text);font-family:var(--mono);font-size:11px;
+                    text-decoration:none;border-radius:4px;border:1px solid var(--border);transition:all .2s;" onmouseover="this.style.borderColor=&#39;var(--accent2)&#39;;this.style.color=&#39;var(--accent2)&#39;" onmouseout="this.style.borderColor=&#39;var(--border)&#39;;this.style.color=&#39;var(--text)&#39;">
             ↓ Offline .py
           </a>
         </div>
@@ -916,18 +909,12 @@ curl https://your-node:7771/public-key</div>
           6 retos por ronda · racha de aciertos · mascota secreta · teclado en pantalla.
         </p>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-          <a href="detective_lab_web.html"
-             style="flex:1;text-align:center;padding:.45rem .75rem;background:#dc50dc;color:#000;font-family:var(--mono);font-size:11px;font-weight:700;
-                    text-decoration:none;border-radius:4px;transition:all .2s;border:1px solid #dc50dc;"
-             onmouseover="this.style.background='transparent';this.style.color='#dc50dc'"
-             onmouseout="this.style.background='#dc50dc';this.style.color='#000'">
+          <a href="https://ramigardner.github.io/aspr-gardener/detective_lab_web.html" style="flex:1;text-align:center;padding:.45rem .75rem;background:#dc50dc;color:#000;font-family:var(--mono);font-size:11px;font-weight:700;
+                    text-decoration:none;border-radius:4px;transition:all .2s;border:1px solid #dc50dc;" onmouseover="this.style.background=&#39;transparent&#39;;this.style.color=&#39;#dc50dc&#39;" onmouseout="this.style.background=&#39;#dc50dc&#39;;this.style.color=&#39;#000&#39;">
             ▶ Jugar Online
           </a>
-          <a href="detective_lab.py" download
-             style="flex:1;text-align:center;padding:.45rem .75rem;background:transparent;color:var(--text);font-family:var(--mono);font-size:11px;
-                    text-decoration:none;border-radius:4px;border:1px solid var(--border);transition:all .2s;"
-             onmouseover="this.style.borderColor='#dc50dc';this.style.color='#dc50dc'"
-             onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
+          <a href="https://ramigardner.github.io/aspr-gardener/detective_lab.py" download="" style="flex:1;text-align:center;padding:.45rem .75rem;background:transparent;color:var(--text);font-family:var(--mono);font-size:11px;
+                    text-decoration:none;border-radius:4px;border:1px solid var(--border);transition:all .2s;" onmouseover="this.style.borderColor=&#39;#dc50dc&#39;;this.style.color=&#39;#dc50dc&#39;" onmouseout="this.style.borderColor=&#39;var(--border)&#39;;this.style.color=&#39;var(--text)&#39;">
             ↓ Offline .py
           </a>
         </div>
@@ -952,7 +939,7 @@ curl https://your-node:7771/public-key</div>
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.75rem 1.5rem;font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.04em;word-break:break-all;">
       J2mevaG4qz1vFSyGcJ3fPsKnBip7o8pYKm5r9TaUycDZ
     </div>
-    <a href="https://solscan.io/account/J2mevaG4qz1vFSyGcJ3fPsKnBip7o8pYKm5r9TaUycDZ" target="_blank" style="font-family:var(--mono);font-size:11px;color:var(--text-dim);text-decoration:none;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-dim)'">auditable ↗</a>
+    <a href="https://solscan.io/account/J2mevaG4qz1vFSyGcJ3fPsKnBip7o8pYKm5r9TaUycDZ" target="_blank" style="font-family:var(--mono);font-size:11px;color:var(--text-dim);text-decoration:none;" onmouseover="this.style.color=&#39;var(--accent)&#39;" onmouseout="this.style.color=&#39;var(--text-dim)&#39;">auditable ↗</a>
   </div>
 </section>
 
@@ -963,11 +950,12 @@ curl https://your-node:7771/public-key</div>
   <div class="fp">Verified by Grok (xAI) · Ed25519</div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="./ASPR Oracle Network_files/email-decode.min.js.descarga"></script><script>
 // ============================================================
 // CONFIGURACIÓN
 // ============================================================
 const NODE_URL  = 'https://desktop-be9om4d.tail2e4caf.ts.net';
+const FALLBACK_URLS = [];  // Agrega URLs alternativas si es necesario
 const REFRESH   = 15000; // ms entre actualizaciones automáticas
 
 // ============================================================
@@ -977,27 +965,36 @@ let nodeOnline  = false;
 let lastStatus  = null;
 let termHistory = [];
 let histIdx     = -1;
+let currentNodeUrl = NODE_URL;
 
 // ============================================================
-// FETCH CON TIMEOUT Y CORS
+// FETCH CON TIMEOUT Y FALLBACK
 // ============================================================
-async function fetchNode(path, timeout = 8000) {
-  const ctrl = new AbortController();
-  const tid  = setTimeout(() => ctrl.abort(), timeout);
-  try {
-    const r = await fetch(NODE_URL + path, {
-      signal: ctrl.signal,
-      headers: { 'Accept': 'application/json' },
-      mode: 'cors',
-    });
-    clearTimeout(tid);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return await r.json();
-  } catch (e) {
-    clearTimeout(tid);
-    throw e;
+async function fetchWithFallback(path, timeout = 8000) {
+  const errors = [];
+  const urls = [currentNodeUrl, ...FALLBACK_URLS];
+  for (const url of urls) {
+    try {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), timeout);
+      const r = await fetch(url + path, {
+        signal: ctrl.signal,
+        headers: { 'Accept': 'application/json' },
+        mode: 'cors',
+      });
+      clearTimeout(tid);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      currentNodeUrl = url; // actualizar URL exitosa
+      return await r.json();
+    } catch (e) {
+      errors.push(`${url}: ${e.message}`);
+    }
   }
+  throw new Error(`Todos los endpoints fallaron:\n${errors.join('\n')}`);
 }
+
+// Alias para mantener compatibilidad
+const fetchNode = fetchWithFallback;
 
 // ============================================================
 // FORMATTERS
@@ -1157,7 +1154,7 @@ async function termBoot() {
   termClear();
   termAppend([
     termLine('t-out', '# ASPR Oracle Node v2.1 · connecting to node…'),
-    termLine('t-out', `# endpoint: ${NODE_URL}`),
+    termLine('t-out', `# endpoint: ${currentNodeUrl}`),
   ]);
 
   try {
@@ -1190,6 +1187,13 @@ async function termBoot() {
       termLine('t-out', '# Podés igual usar los comandos cuando el nodo vuelva.'),
     ]);
   }
+}
+
+// Función de reconexión manual
+function forceReconnect() {
+  termClear();
+  termAppend([termLine('t-out', '# Reintentando conexión manual...')]);
+  termBoot();
 }
 
 // ============================================================
@@ -1403,6 +1407,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auto-focus al hacer click en la terminal
   document.querySelector('.terminal').addEventListener('click', () => input.focus());
 
+  // Mostrar timestamp inicial
+  const tsEl = document.getElementById('refresh-ts');
+  if (tsEl) {
+    const now = new Date();
+    tsEl.textContent = `🕒 ${now.toLocaleTimeString('es-AR')}`;
+  }
+
   // Boot
   termBoot();
 });
@@ -1426,8 +1437,23 @@ setInterval(async () => {
       lastStatus = status.value;
       setOnline(true);
       updateStats(status.value);
+    } else {
+      setOnline(false);
     }
+
     if (state.status === 'fulfilled')  updateDevices(state.value);
     if (chain.status === 'fulfilled')  updateChainTip(chain.value);
 
-    if (tsEl) tsEl.
+    if (tsEl) {
+      const now = new Date();
+      tsEl.textContent = `🕒 ${now.toLocaleTimeString('es-AR')}`;
+    }
+  } catch (e) {
+    console.warn('Refresh error:', e);
+    setOnline(false);
+  } finally {
+    if (loadEl) loadEl.style.display = 'none';
+  }
+}, REFRESH);
+</script>
+</body></html>
