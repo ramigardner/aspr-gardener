@@ -4,84 +4,81 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ASPR Oracle Network</title>
 <style>
-:root{--bg:#101040;--fg:#80ff80;--dim:#8080c0;--cyan:#54ffff;--yellow:#f0f050;--red:#ff5050;--grid:#1c1c58}
+:root{--bg:#101040;--fg:#80ff80;--cyan:#54ffff;--yellow:#f0f050;--red:#ff5050;--dim:#8080c0;--grid:#1c1c58}
 body{background:var(--bg);color:var(--fg);font-family:'Courier New',monospace;margin:0;padding:20px;line-height:1.5}
 a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
-h1,h2,h3{color:var(--yellow);margin:10px 0 5px;font-weight:normal}
+h1,h2{color:var(--yellow);margin:10px 0 5px;font-weight:normal}
 .container{max-width:900px;margin:0 auto}
 table{width:100%;border-collapse:collapse;margin:10px 0}
 th,td{border:1px solid var(--grid);padding:6px 8px;text-align:left;font-size:13px}
-th{color:var(--cyan);background:rgba(8,8,30,0.6)}
-code{background:#0a0a20;padding:2px 6px;border-radius:3px;color:var(--yellow)}
-.status{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0;font-size:13px}
-.status span{background:#0a0a20;padding:3px 8px;border:1px solid var(--dim);border-radius:2px}
-@keyframes blink{50%{opacity:0}}
-.blink{animation:blink 1s step-end infinite}
+th{color:var(--cyan);background:#0a0a20}
+.status{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;font-size:13px}
+.status span{background:#0a0a20;padding:3px 8px;border:1px solid var(--dim)}
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:15px 0}
+.lab-card{background:#0a0a20;border:1px solid var(--dim);padding:12px}
+.lab-btn{display:inline-block;padding:4px 10px;background:#101040;border:1px solid var(--fg);color:var(--fg);text-decoration:none;margin-right:6px}
+.lab-btn:hover{background:var(--fg);color:var(--bg)}
+.legend{border-top:1px dashed var(--dim);border-bottom:1px dashed var(--dim);padding:10px 0;margin:20px 0;text-align:center;color:var(--dim);font-size:12px;letter-spacing:1px}
+@keyframes blink{50%{opacity:0}}.blink{animation:blink 1s step-end infinite}
 footer{margin-top:30px;padding-top:15px;border-top:1px dashed var(--dim);font-size:11px;color:var(--dim)}
 </style>
 </head>
 <body>
 <div class="container">
   <h1>ASPR Oracle Network <span class="blink">_</span></h1>
-  <nav><a href="#status">Status</a> · <a href="#query">Query</a> · <a href="#protocol">Protocol</a> · <a href="#paper">Paper</a> · <a href="#kidslab">🧪 Kids Lab</a> · <a href="mailto:asproraclenode@gmail.com">Contact</a></nav>
-  
-  <p>// open protocol · structural trust · ed25519</p>
-  
-  <section id="status">
-    <h2>🖥️ ASPR Oracle Node v2.1</h2>
-    <p>Structural reputation system for AI agents and network devices. On-chain verifiable karma. Open federation. Cryptographic signatures.</p>
-    <div class="status">
-      <span><strong>Blocks:</strong> <span data-aspr="blocks">—</span></span>
-      <span><strong>Karma Avg:</strong> <span data-aspr="karma">—</span></span>
-      <span><strong>Online:</strong> <span data-aspr="online">—</span></span>
-      <span><strong>Vault:</strong> <span data-aspr="vault">—</span></span>
-      <span><strong>Fingerprint:</strong> <span data-aspr="fp">—</span></span>
-      <span><strong>Cycle:</strong> <span data-aspr="cycle">—</span></span>
-      <span><strong>Events:</strong> <span data-aspr="events">—</span></span>
-    </div>
-  </section>
+  <div class="status">
+    <span>Blocks: <b data-aspr="blocks">—</b></span>
+    <span>Karma Avg: <b data-aspr="karma">—</b></span>
+    <span>Online: <b data-aspr="online">—</b></span>
+    <span>Vault: <b data-aspr="vault">—</b></span>
+    <span>Fingerprint: <b data-aspr="fp">—</b></span>
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>IP</th><th>Type</th><th>Karma</th><th>Latency</th><th>Status</th></tr></thead>
+    <tbody id="aspr-devices"><tr><td colspan="6" style="text-align:center;color:var(--dim)">⏳ Conectando a localhost:7771...</td></tr></tbody>
+  </table>
 
-  <section id="query">
-    <h2>🔍 Live Query Terminal</h2>
-    <p><code>aspr-oracle</code> · protocol v1.1 · Tailscale Funnel ready</p>
-    <table>
-      <thead><tr><th>device_id</th><th>ip</th><th>type</th><th>karma</th><th>latency</th><th>status</th></tr></thead>
-      <tbody id="aspr-devices">
-        <tr><td colspan="6" style="color:var(--dim);text-align:center">⏳ Sincronizando con nodo local...</td></tr>
-      </tbody>
-    </table>
-  </section>
+  <div class="legend">// CONFIANZA VERIFICABLE · NO POR CONSENSO · FIRMA ED25519 · K = M·0.30 + C·0.25 + A·0.20 + E·0.15 + R·0.10</div>
 
-  <section id="protocol">
-    <h2>📜 Protocol Architecture</h2>
-    <p><strong>// Karma Canonical Formula v1.1</strong><br>
-    Five weighted components measuring structural life experience, not consensus.<br>
-    <code>K = M·0.30 + C·0.25 + A·0.20 + E·0.15 + R·0.10</code></p>
-    <p><strong>// Federation</strong><br>
-    Federated Karma Weighted average across independent nodes. Higher-reputation nodes carry more weight.<br>
-    <code>K_fed = Σ(K_node × K_local) / Σ(K_node)</code></p>
-    <p><strong>// LocIVault Chain</strong><br>
-    SHA-256 linked blocks with Ed25519 signatures. Peer snapshots every 10 blocks. Append-only archive.</p>
-  </section>
-
-  <section id="paper">
-    <h2>📄 Technical Paper</h2>
-    <p>ASPR: A Structural Reputation Protocol for Multi-Agent Systems<br>
-    Author: Ramiro (ramigardner) · Version 1.1 · April 2026</p>
-    <p>Current reputation systems reward consensus and recursion, not accuracy or grounding in reality. ASPR measures structural life experience across five verifiable dimensions, cryptographically signed and federated.</p>
-  </section>
-
-  <section id="kidslab">
-    <h2>🧪 KidsLab — Oracle Kids</h2>
-    <p>Logo turtle puzzles · PvP Hackers vs Nerds · Persistent pet · 8-bit synthesis · LAN + Tailscale</p>
-    <a href="kidslab_splash.html">🐸 Entrar al KidsLab ↗</a> · <a href="detective_lab.py">↓ Detective Lab</a> · <a href="kinderlabs_demo (6).py">↓ Kids Lab Demo</a>
-  </section>
+  <div class="lab-grid">
+    <div class="lab-card"><h3>🔍 Detective Lab</h3><p>Matrices A+B=C · Lógica pura</p><a class="lab-btn" href="detective_lab.py">▼ Descargar .py</a></div>
+    <div class="lab-card"><h3>⚔️ Kids Lab PvP</h3><p>Hackers vs Nerds · Logo Turtle</p><a class="lab-btn" href="kinderlabs_demo.py">▼ Descargar .py</a></div>
+    <div class="lab-card"><h3>🎵 Oracle Synth</h3><p>8-bit Karma Sonoro · Offline/LAN</p><a class="lab-btn" href="oracle_synth.py">▼ Descargar .py</a></div>
+  </div>
 
   <footer>
     <p>ASPR Oracle Node v2.1 · Protocol v1.1 · <a href="https://github.com/ramigardner/aspr-gardener">ramigardner</a></p>
-    <p>Support: <code>Solana J2mevaG4qz1vFSyGcJ3fPsKnBip7o8pYKm5r9TaUycDZ</code> · <a href="https://solscan.io/account/J2mevaG4qz1vFSyGcJ3fPsKnBip7o8pYKm5r9TaUycDZ">Auditable ↗</a></p>
+    <p>Support: <code>Solana J2mevaG4qz1vFSyGcJ3fPsKnBip7o8pYKm5r9TaUycDZ</code></p>
   </footer>
 </div>
-<script src="aspr-sync.js"></script>
+<script>
+(function(){
+  const API = "http://localhost:7771/api/state";
+  let delay = 2000;
+  function render(d) {
+    if(!d) return;
+    const devs = d.devices || {};
+    const list = Object.values(devs);
+    const karmas = list.map(v => v.karma || 0);
+    const avg = karmas.length ? (karmas.reduce((a,b)=>a+b,0)/karmas.length).toFixed(3) : '—';
+    document.querySelectorAll('[data-aspr="blocks"]').forEach(e => e.textContent = d.vault_entries || '—');
+    document.querySelectorAll('[data-aspr="karma"]').forEach(e => e.textContent = avg);
+    document.querySelectorAll('[data-aspr="online"]').forEach(e => e.textContent = list.filter(v=>v.online).length);
+    document.querySelectorAll('[data-aspr="vault"]').forEach(e => e.textContent = d.vault_ok ? '✅ INTEGRIDAD OK' : '❌ FALLO');
+    document.querySelectorAll('[data-aspr="fp"]').forEach(e => e.textContent = d.public_key ? `${d.public_key.slice(8,16)}...` : '—');
+    const tb = document.getElementById('aspr-devices');
+    if(tb) tb.innerHTML = list.map(v => `<tr><td>${v.id}</td><td>${v.ip}</td><td>${v.tipo||'—'}</td><td>${(v.karma||0).toFixed(3)}</td><td>${v.latency||'—'}ms</td><td style="color:${v.online?'#80ff80':'#ff5050'}">${v.online?'ONLINE':'OFFLINE'}</td></tr>`).join('');
+  }
+  async function poll() {
+    try {
+      const r = await fetch(API, {signal: AbortSignal.timeout(3000)});
+      if(r.ok) { const d = await r.json(); render(d); delay=2000; return; }
+    } catch(e) {}
+    delay = Math.min(delay*1.5, 8000);
+    setTimeout(poll, delay);
+  }
+  poll();
+})();
+</script>
 </body>
 </html>
