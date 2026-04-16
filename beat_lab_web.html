@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎵 Beat Lab · ASPR Kids Lab · Web Sequencer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: #0a0718;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+            border-radius: 16px;
+            cursor: pointer;
+        }
+
+        .audio-hint {
+            position: fixed;
+            bottom: 12px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 11px;
+            color: #6a5a8a;
+            background: #0f0b1c;
+            width: fit-content;
+            margin: 0 auto;
+            padding: 4px 12px;
+            border-radius: 40px;
+            pointer-events: none;
+            font-family: monospace;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+<canvas id="beatCanvas" width="1280" height="680" tabindex="0"></canvas>
+<div class="audio-hint">🎧 Click anywhere → enable audio & start music</div>
+
+<script>
+    (function(){
+        // ---------- CONFIGURACIÓN ----------
+        const WIDTH = 1280, HEIGHT = 680;
+        const GRID_COLS = 15;
+        const GRID_ROWS = 7;
+        const CELL_WIDTH = 48;
+        const CELL_HEIGHT = 56;
+        const GRID_LEFT = 60;
+        const GRID_TOP = 140;
+
+        const SOUND_NAMES = ["KICK", "SNARE", "HI-HAT", "CLAP", "BASS", "TOM", "RIM"];
+        const DEFAULT_BPM = 120;
+
+        // Paleta Kids Lab
+        const BG_COLOR = [8, 6, 18];
+        const BORDER_COLOR = [40, 30, 70];
+        const ACCENT = [0, 229, 180];
+        const ACCENT2 = [180, 100, 255];
+        const TEXT_COLOR = [210, 200, 240];
+        const TEXT_DIM = [100, 85, 140];
+        const PANEL_BG = [12, 9, 22];
+        const HIGHLIGHT_COLOR = [255, 255, 255];
+
+        const TRACK_COLORS = [
+            [255, 80, 80], [255, 180, 30], [50, 220, 255],
+            [180, 100, 255], [60, 230, 130], [255, 140, 0], [220, 50, 220]
+        ];
+        const TRACK_COLORS_DIM = [
+            [50, 15, 15], [50, 35, 5], [5, 40, 55],
+            [30, 10, 55], [5, 45, 20], [40, 20, 0], [40, 0, 40]
+        ];
+
+        // ---------- ESTADO GLOBAL ----------
+        let grid = Array(GRID_ROWS).fill().map(() => Array(GRID_COLS).fill(false));
+        let bpm = DEFAULT_BPM;
+        let playing = false;
+        let recording = false;      // visual / toggle mode
+        let currentStep = 0;
+        let stepIntervalMs = (60.0 / bpm / 4) * 1000;
+        let sequencerTimer = null;
+        let rowFlash = Array(GRID_ROWS).fill(0);
+        let trackMute = Array(GRID_ROWS).fill(false);
+        let trackSolo = Array(GRID_ROWS).fill(false);
+        let effectsMode = false;
+        let statusMessage = "";
+        let statusTimer = 0;
+
+        // proyectos en localStorage
+        let projectList = [];
+        let selectedProjectIndex = -1;
+
+        // Audio context & buffers
+        let audioCtx = null;
+        let drumBuffers = [];      // 7 drum buffers
+        let sampleBuffers = [];     // efectos
+        let sampleFileNames = [];
+
+        // UI rects dinámicas
+        let buttonRects = [];
+        let trackControlRects = [];
+        let projectItemRects = [];
+        let loadProjBtn = null, refreshBtn = null, delProjBtn = null, exportAllBtn = null;
+        let sampleRects = [];
+
+        // canvas
+        const canvas = document.getElementById('beatCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // ---------- FUNCIONES DE AUDIO (SÍNTESIS) ----------
+        function ensureAudioContext() {
+            if (audioCtx && audioCtx.state !== 'closed') return audioCtx;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+
+        // crear buffer mono a partir de array float32
+        function createBufferFromArray(sampleRate, data) {
+            const buffer = audioCtx.createBuffer(1, data.length, sampleRate);
+            buffer.copyToChannel(data, 0);
+            return buffer;
+        }
+
+        // síntesis de cada instrumento (mono, 44100)
+        function synthKick(duration=0.2, sampleRate=44100) {
+            const len = Math.floor(sampleRate * duration);
+            const data = new Float32Array(len);
+            for (let i = 0; i < len; i++) {
+                let t = i / sampleRate;
+                let freq = 150 * Math.exp(-8 * t) + 40;
+                let val = Math.sin(2 * Math.PI * freq * t);
+                let env = Math.exp(-12 * t);
+                data[i] = val * env;
+            }
+            return data;
+        }
+        function synthSnare(duration=0.15, sampleRate=44100) {
+            const len = Math.floor(sampleRate * duration);
+            const data = new Float32Array(len);
+            for (let i = 0; i < len; i++) {
+                let t = i / sampleRate;
+                let noise = (Math.random() * 2 - 1) * 0.8;
+                let tone = Math.sin(2 * Math.PI * 180 * t) * 0.4;
+                let env = Math.exp(-25 * t);
+                data[i] = (noise + tone) * env;
+            }
+            return data;
+        }
+        function synthHihat(duration=0.05, sampleRate=44100) {
+            const len = Math.floor(sampleRate * duration);
+            const data = new Float32Array(len);
+            for (let i = 0; i < len; i++) {
+                let t = i / sampleRate;
+                let noise = (Math.random() * 2 - 1);
+                let filtered = noise - (i>0 ? 0.7 * data[i-1] : 0);
+                let env = Math.exp(-70 * t);
+                data[i] = filtered * env * 0.6;
+            }
+            return data;
+        }
+        function synthClap(duration=0.1, sampleRate=44100) {
+            const len = Math.floor(sampleRate * duration);
+            const data = new Float32Array(len);
+            for (let i = 0; i < len; i++) {
+                let t = i / sampleRate;
+                let noise = (Math.random() * 2 - 1) * 0.9;
+                let env = Math.exp(-18 * t);
+                data[i] = noise * env;
+            }
+            return data;
+        }
+        function synthBass(duration=0.3, sampleRate=44100) {
+            const len = Math.floor(sampleRate * duration);
+            const data = new Float32Array(len);
+            for (let i = 0; i < len; i++) {
+                let t = i / sampleRate;
+                let freq = 70;
+                let sinVal = Math.sin(2 * Math.PI * freq * t) * 0.6;
+                let saw = 2 * (t * freq - Math.floor(0.5 + t * freq)) - 1;
+                let mix = sinVal + saw * 0.3;
+                let env = Math.exp(-4 * t);
+                data[i] = mix * env;
+            }
+            return data;
+        }
+        function synthTom(duration=0.15, sampleRate=44100) {
+            const len = Math.floor(sampleRate * duration);
+            const data = new Float32Array(len);
+            for (let i = 0; i < len; i++) {
+                let t = i / sampleRate;
+                let freq = 200 * Math.exp(-6 * t) + 70;
+                let val = Math.sin(2 * Math.PI * freq * t);
+                let env = Math.exp(-12 * t);
+                data[i] = val * env;
+            }
+            return data;
+        }
+        function synthRim(duration=0.04, sampleRate=44100) {
+            const len = Math.floor(sampleRate * duration);
+            const data = new Float32Array(len);
+            for (let i = 0; i < len; i++) {
+                let t = i / sampleRate;
+                let noise = (Math.random() * 2 - 1) * 0.5;
+                let tone = Math.sin(2 * Math.PI * 1200 * t) * 0.3;
+                let env = Math.exp(-100 * t);
+                data[i] = (noise + tone) * env;
+            }
+            return data;
+        }
+
+        function generateAllDrumBuffers() {
+            if (!audioCtx) return;
+            const sr = audioCtx.sampleRate;
+            const synths = [synthKick, synthSnare, synthHihat, synthClap, synthBass, synthTom, synthRim];
+            drumBuffers = synths.map(synth => {
+                const data = synth(0.2, sr);
+                return createBufferFromArray(sr, data);
+            });
+        }
+
+        // efectos simples: 4 samples sintéticos
+        function generateSampleBuffers() {
+            if (!audioCtx) return;
+            const sr = audioCtx.sampleRate;
+            sampleBuffers = [];
+            sampleFileNames = ["✨ SPARK", "⚡ LASER", "🔔 BELL", "🌀 WOOSH", "👏 EXTRA"];
+            // spark
+            let len = Math.floor(sr * 0.2);
+            let spark = new Float32Array(len);
+            for (let i=0;i<len;i++) spark[i] = (Math.random()*2-1) * Math.exp(-25*i/sr);
+            // laser
+            let laser = new Float32Array(len);
+            for (let i=0;i<len;i++) laser[i] = Math.sin(2*Math.PI* (800 + 4000*i/sr) * i/sr) * Math.exp(-15*i/sr);
+            // bell
+            let bell = new Float32Array(Math.floor(sr*0.4));
+            for (let i=0;i<bell.length;i++) {
+                let t=i/sr;
+                bell[i] = (Math.sin(2*Math.PI*880*t)*0.6 + Math.sin(2*Math.PI*1320*t)*0.3) * Math.exp(-4*t);
+            }
+            // woosh
+            let woosh = new Float32Array(Math.floor(sr*0.25));
+            for (let i=0;i<woosh.length;i++) woosh[i] = (Math.random()*2-1)*0.7 * Math.exp(-8*i/sr);
+            // extra clap
+            let extra = synthClap(0.12, sr);
+            sampleBuffers = [spark, laser, bell, woosh, extra].map(buf => createBufferFromArray(sr, buf));
+        }
+
+        function playSound(buffer) {
+            if (!audioCtx || !buffer) return;
+            const src = audioCtx.createBufferSource();
+            src.buffer = buffer;
+            src.connect(audioCtx.destination);
+            src.start();
+        }
+
+        function playDrum(row) {
+            if (!audioCtx) return;
+            if (trackMute[row]) return;
+            let anySolo = trackSolo.some(v=>v===true);
+            if(anySolo && !trackSolo[row]) return;
+            if(drumBuffers[row]) playSound(drumBuffers[row]);
+        }
+
+        function playSampleEffect(idx) {
+            if(effectsMode && sampleBuffers[idx]) playSound(sampleBuffers[idx]);
+            else if(!effectsMode) setStatus("🔇 Efectos desactivados (presiona EFX)");
+        }
+
+        // ---------- SEQUENCER LOOP ----------
+        function stepSequencer() {
+            if(!playing) return;
+            // disparar sonidos para el paso actual
+            for(let row=0; row<GRID_ROWS; row++) {
+                if(grid[row][currentStep] && (!trackMute[row])) {
+                    let anySolo = trackSolo.some(v=>v===true);
+                    if(!anySolo || trackSolo[row]) {
+                        playDrum(row);
+                        rowFlash[row] = 1.0;
+                    }
+                }
+            }
+            currentStep = (currentStep + 1) % GRID_COLS;
+        }
+
+        function startSequencer() {
+            if(playing) return;
+            if(sequencerTimer) clearInterval(sequencerTimer);
+            playing = true;
+            currentStep = 0;
+            stepIntervalMs = (60.0 / bpm / 4) * 1000;
+            sequencerTimer = setInterval(() => {
+                if(playing) stepSequencer();
+            }, stepIntervalMs);
+            setStatus("▶ PLAYING");
+        }
+
+        function stopSequencer() {
+            if(sequencerTimer) {
+                clearInterval(sequencerTimer);
+                sequencerTimer = null;
+            }
+            playing = false;
+            setStatus("⏹ STOPPED");
+        }
+
+        function updateBpm(newBpm) {
+            bpm = Math.min(200, Math.max(60, newBpm));
+            stepIntervalMs = (60.0 / bpm / 4) * 1000;
+            if(playing) {
+                // reiniciar timer
+                if(sequencerTimer) clearInterval(sequencerTimer);
+                sequencerTimer = setInterval(() => {
+                    if(playing) stepSequencer();
+                }, stepIntervalMs);
+            }
+            setStatus(`BPM: ${bpm}`);
+        }
+
+        // ---------- PROYECTOS (localStorage) ----------
+        function saveProjectsToLocal() {
+            let store = projectList.map(p => ({
+                name: p.name,
+                grid: p.grid,
+                bpm: p.bpm,
+                timestamp: p.timestamp
+            }));
+            localStorage.setItem("beatlab_projects", JSON.stringify(store));
+        }
+
+        function refreshProjectList() {
+            const raw = localStorage.getItem("beatlab_projects");
+            if(raw) {
+                try{
+                    let arr = JSON.parse(raw);
+                    projectList = arr.map(p => ({ ...p, grid: p.grid || Array(GRID_ROWS).fill().map(()=>Array(GRID_COLS).fill(false)) }));
+                } catch(e){ projectList = []; }
+            } else {
+                projectList = [];
+            }
+            projectList.sort((a,b)=> (b.timestamp||0) - (a.timestamp||0));
+            selectedProjectIndex = -1;
+            setStatus("Proyectos actualizados");
+        }
+
+        function saveCurrentProject() {
+            const name = prompt("Nombre del proyecto:", `proyecto_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}`);
+            if(!name) return;
+            const newProj = {
+                name: name,
+                grid: grid.map(row => [...row]),
+                bpm: bpm,
+                timestamp: Date.now()
+            };
+            projectList.unshift(newProj);
+            saveProjectsToLocal();
+            refreshProjectList();
+            setStatus(`Guardado: ${name}`);
+        }
+
+        function loadProject(proj) {
+            grid = proj.grid.map(row => [...row]);
+            bpm = proj.bpm;
+            updateBpm(bpm);
+            stopSequencer();
+            setStatus(`Cargado: ${proj.name}`);
+        }
+
+        function deleteProject(index) {
+            if(index>=0 && index<projectList.length) {
+                let removed = projectList.splice(index,1);
+                saveProjectsToLocal();
+                refreshProjectList();
+                setStatus(`Borrado: ${removed[0].name}`);
+                if(selectedProjectIndex === index) selectedProjectIndex = -1;
+                else if(selectedProjectIndex > index) selectedProjectIndex--;
+            }
+        }
+
+        function exportCurrentPatternToWav() {
+            if(!audioCtx) { setStatus("Audio no listo"); return; }
+            setStatus("Exportando WAV ...");
+            setTimeout(async ()=>{
+                await exportPatternToWav(grid, bpm, `beat_export_${Date.now()}.wav`, 4);
+                setStatus("Exportación completada");
+            }, 50);
+        }
+
+        async function exportPatternToWav(patternGrid, tempo, filename, loops=4) {
+            const sr = audioCtx.sampleRate;
+            const stepDur = 60.0 / tempo / 4;
+            const totalSteps = GRID_COLS * loops;
+            const totalSamples = Math.floor(totalSteps * stepDur * sr);
+            let mixBuffer = new Float32Array(totalSamples);
+            // obtener buffers de audio para cada fila (datos raw)
+            const rowRawBuffers = [];
+            const synthsRaw = [synthKick, synthSnare, synthHihat, synthClap, synthBass, synthTom, synthRim];
+            for(let r=0; r<GRID_ROWS; r++) {
+                let data = synthsRaw[r](0.25, sr);
+                rowRawBuffers.push(data);
+            }
+            for(let loop=0; loop<loops; loop++) {
+                for(let step=0; step<GRID_COLS; step++) {
+                    const stepGlobal = loop * GRID_COLS + step;
+                    const startSample = Math.floor(stepGlobal * stepDur * sr);
+                    for(let row=0; row<GRID_ROWS; row++) {
+                        if(patternGrid[row][step]) {
+                            const audioData = rowRawBuffers[row];
+                            const len = Math.min(audioData.length, totalSamples - startSample);
+                            for(let i=0; i<len; i++) {
+                                mixBuffer[startSample + i] += audioData[i];
+                            }
+                        }
+                    }
+                }
+            }
+            let maxVal = 0;
+            for(let i=0;i<mixBuffer.length;i++) if(Math.abs(mixBuffer[i])>maxVal) maxVal=Math.abs(mixBuffer[i]);
+            if(maxVal>0) for(let i=0;i<mixBuffer.length;i++) mixBuffer[i] = mixBuffer[i]/maxVal * 0.95;
+            // convertir a wav
+            const wav = float32ToWav(mixBuffer, sr);
+            downloadBlob(wav, filename, "audio/wav");
+        }
+
+        function float32ToWav(samples, sampleRate) {
+            const buffer = new ArrayBuffer(44 + samples.length * 2);
+            const view = new DataView(buffer);
+            const writeString = (offset, str) => { for(let i=0;i<str.length;i++) view.setUint8(offset+i, str.charCodeAt(i)); };
+            writeString(0, "RIFF");
+            view.setUint32(4, 36 + samples.length * 2, true);
+            writeString(8, "WAVE");
+            writeString(12, "fmt ");
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, "data");
+            view.setUint32(40, samples.length * 2, true);
+            let offset = 44;
+            for(let i=0; i<samples.length; i++) {
+                let intVal = Math.max(-32768, Math.min(32767, Math.floor(samples[i] * 32767)));
+                view.setInt16(offset, intVal, true);
+                offset += 2;
+            }
+            return new Blob([buffer], {type: "audio/wav"});
+        }
+
+        function downloadBlob(blob, name, mime) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function exportAllProjects() {
+            if(projectList.length===0) { setStatus("No hay proyectos"); return; }
+            setStatus(`Exportando ${projectList.length} proyectos...`);
+            for(let i=0;i<projectList.length;i++) {
+                const proj = projectList[i];
+                const safeName = proj.name.replace(/[^a-z0-9]/gi, '_') + ".wav";
+                await exportPatternToWav(proj.grid, proj.bpm, safeName, 4);
+                await new Promise(r=>setTimeout(r, 400));
+            }
+            setStatus("Exportación masiva finalizada");
+        }
+
+        // ---------- MIX Y RESET ----------
+        function mixPattern() {
+            const newGrid = Array(GRID_ROWS).fill().map(()=>Array(GRID_COLS).fill(false));
+            // kick
+            for(let s of [0,4,8,12]) if(s<GRID_COLS) newGrid[0][s]=true;
+            // snare & clap
+            for(let s of [3,7,11]) if(s<GRID_COLS) { newGrid[1][s]=true; if(s+1<GRID_COLS) newGrid[3][s+1]=true; }
+            // hihat
+            for(let s=0;s<GRID_COLS;s+=2) newGrid[2][s]=true;
+            // tom
+            for(let s of [2,6,10,14]) if(s<GRID_COLS) newGrid[5][s]=true;
+            // rim
+            for(let s of [5,9,13]) if(s<GRID_COLS) newGrid[6][s]=true;
+            // bass aleatorio
+            for(let s=0;s<GRID_COLS;s+=2) newGrid[4][s] = Math.random()>0.5;
+            grid = newGrid;
+            setStatus("🎛 Mix generado");
+        }
+        function resetGrid() {
+            grid = Array(GRID_ROWS).fill().map(()=>Array(GRID_COLS).fill(false));
+            setStatus("🧹 Grilla limpiada");
+        }
+
+        function setStatus(msg) {
+            statusMessage = msg;
+            statusTimer = 150;
+        }
+
+        // ---------- DIBUJO Y UI ----------
+        function drawRoundedRect(x,y,w,h, radius, color, border=0, borderColor=null) {
+            ctx.beginPath();
+            ctx.moveTo(x+radius, y);
+            ctx.lineTo(x+w-radius, y);
+            ctx.quadraticCurveTo(x+w, y, x+w, y+radius);
+            ctx.lineTo(x+w, y+h-radius);
+            ctx.quadraticCurveTo(x+w, y+h, x+w-radius, y+h);
+            ctx.lineTo(x+radius, y+h);
+            ctx.quadraticCurveTo(x, y+h, x, y+h-radius);
+            ctx.lineTo(x, y+radius);
+            ctx.quadraticCurveTo(x, y, x+radius, y);
+            ctx.closePath();
+            ctx.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
+            ctx.fill();
+            if(border && borderColor){
+                ctx.strokeStyle = `rgb(${borderColor[0]},${borderColor[1]},${borderColor[2]})`;
+                ctx.lineWidth = border;
+                ctx.stroke();
+            }
+        }
+
+        function lerpColor(c1,c2,t){
+            return [c1[0]+(c2[0]-c1[0])*t, c1[1]+(c2[1]-c1[1])*t, c1[2]+(c2[2]-c1[2])*t];
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,WIDTH,HEIGHT);
+            // background grid
+            ctx.fillStyle = `rgb(${BG_COLOR[0]},${BG_COLOR[1]},${BG_COLOR[2]})`;
+            ctx.fillRect(0,0,WIDTH,HEIGHT);
+            for(let gx=0;gx<WIDTH;gx+=40) for(let gy=0;gy<HEIGHT;gy+=40){
+                ctx.fillStyle = `rgb(${BORDER_COLOR[0]},${BORDER_COLOR[1]},${BORDER_COLOR[2]})`;
+                ctx.beginPath(); ctx.arc(gx,gy,1,0,Math.PI*2); ctx.fill();
+            }
+            drawHeader();
+            drawGrid();
+            drawControlButtons();
+            drawRightPanel();
+            drawKeyboard();
+            drawFooter();
+        }
+
+        function drawHeader(){
+            ctx.font = "bold 22px 'Courier New'";
+            ctx.fillStyle = `rgb(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]})`;
+            ctx.fillText("BEAT LAB", GRID_LEFT, 38);
+            ctx.font = "11px monospace";
+            ctx.fillStyle = `rgb(${TEXT_DIM[0]},${TEXT_DIM[1]},${TEXT_DIM[2]})`;
+            ctx.fillText("ASPR GARDENER · KIDS LAB", GRID_LEFT, 62);
+            let badgeColor = playing ? [0,180,90] : (recording ? [200,60,60] : [50,30,70]);
+            let label = playing ? "▶ PLAYING" : (recording ? "● REC" : "⏸ STOPPED");
+            let labelColor = playing ? [0,255,140] : (recording ? [255,150,150] : TEXT_DIM);
+            drawRoundedRect(GRID_LEFT, 70, 130, 26, 6, badgeColor);
+            ctx.fillStyle = `rgb(${labelColor[0]},${labelColor[1]},${labelColor[2]})`;
+            ctx.font = "13px monospace";
+            ctx.fillText(label, GRID_LEFT+8, 88);
+            ctx.fillStyle = `rgb(${ACCENT2[0]},${ACCENT2[1]},${ACCENT2[2]})`;
+            ctx.fillText(`BPM: ${bpm}`, GRID_LEFT+150, 86);
+            if(statusTimer>0){
+                ctx.fillStyle = `rgb(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]})`;
+                ctx.font = "10px monospace";
+                ctx.fillText(statusMessage, GRID_LEFT+280, 86);
+                statusTimer--;
+            }
+        }
+
+        function drawGrid(){
+            for(let c=0;c<GRID_COLS;c++){
+                let x = GRID_LEFT + c*CELL_WIDTH + CELL_WIDTH/2 - 4;
+                ctx.fillStyle = (playing && c===currentStep) ? `rgb(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]})` : `rgb(${TEXT_DIM[0]},${TEXT_DIM[1]},${TEXT_DIM[2]})`;
+                ctx.font = "11px monospace";
+                ctx.fillText(c+1, x, GRID_TOP-12);
+            }
+            for(let r=0;r<GRID_ROWS;r++){
+                let colorOn = TRACK_COLORS[r];
+                let colorOff = TRACK_COLORS_DIM[r];
+                let flash = rowFlash[r];
+                ctx.font = "13px monospace";
+                ctx.fillStyle = `rgb(${colorOn[0]},${colorOn[1]},${colorOn[2]})`;
+                ctx.fillText(SOUND_NAMES[r], GRID_LEFT-48, GRID_TOP + r*CELL_HEIGHT + CELL_HEIGHT/2 + 4);
+                if(flash>0){
+                    let bright = lerpColor(colorOn, [255,255,255], flash*0.6);
+                    ctx.fillStyle = `rgb(${bright[0]},${bright[1]},${bright[2]})`;
+                    ctx.fillText(SOUND_NAMES[r], GRID_LEFT-48, GRID_TOP + r*CELL_HEIGHT + CELL_HEIGHT/2 + 4);
+                }
+                for(let c=0;c<GRID_COLS;c++){
+                    let x = GRID_LEFT + c*CELL_WIDTH;
+                    let y = GRID_TOP + r*CELL_HEIGHT;
+                    let rect = [x+2, y+2, CELL_WIDTH-6, CELL_HEIGHT-6];
+                    if(grid[r][c]){
+                        let col = lerpColor(colorOn, [255,255,255], (playing && c===currentStep)?0.4:0);
+                        drawRoundedRect(rect[0], rect[1], rect[2], rect[3], 6, col);
+                        ctx.fillStyle = "rgba(255,255,255,0.7)";
+                        ctx.beginPath(); ctx.arc(x+CELL_WIDTH/2, y+CELL_HEIGHT/2, 3,0,Math.PI*2); ctx.fill();
+                    } else {
+                        drawRoundedRect(rect[0], rect[1], rect[2], rect[3], 6, colorOff);
+                        let borderCol = lerpColor(colorOff, colorOn, 0.3);
+                        drawRoundedRect(rect[0], rect[1], rect[2], rect[3], 6, colorOff, 1, borderCol);
+                    }
+                    if(playing && c===currentStep){
+                        ctx.strokeStyle = `rgb(${HIGHLIGHT_COLOR[0]},${HIGHLIGHT_COLOR[1]},${HIGHLIGHT_COLOR[2]})`;
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(x+1, y+1, CELL_WIDTH-4, CELL_HEIGHT-4);
+                    }
+                }
+            }
+        }
+
+        function drawControlButtons(){
+            let btnY = GRID_TOP + GRID_ROWS*CELL_HEIGHT + 30;
+            let startX = GRID_LEFT;
+            const btns = ["▶ PLAY", "⏹ STOP", "● REC", "🔄 MIX", "💾 SAVE", "✨ EFX", "📀 WAV", "🗑 RESET"];
+            buttonRects = [];
+            for(let i=0;i<btns.length;i++){
+                let x = startX + i*95;
+                let w=85, h=36;
+                let active = (i===0 && playing) || (i===1 && !playing) || (i===2 && recording) || (i===5 && effectsMode);
+                let baseCol = (i===0?[0,150,80]:i===1?[150,40,40]:i===2?[200,30,30]:i===3?[70,50,140]:i===4?[50,100,150]:i===5?[120,60,180]:i===6?[30,100,130]:[120,40,40]);
+                if(active) baseCol = lerpColor(baseCol, [255,255,255], 0.3);
+                drawRoundedRect(x, btnY, w, h, 6, baseCol, 1, lerpColor(baseCol, [255,255,255],0.5));
+                ctx.fillStyle = "#ddd";
+                ctx.font = "13px monospace";
+                ctx.fillText(btns[i], x+12, btnY+24);
+                buttonRects.push({x,y:btnY,w,h,action:i});
+            }
+        }
+
+        function drawRightPanel(){
+            let panelX = GRID_LEFT + GRID_COLS*CELL_WIDTH + 20;
+            let panelW = WIDTH - panelX - 20;
+            drawRoundedRect(panelX, GRID_TOP-20, panelW, HEIGHT-GRID_TOP-40, 8, PANEL_BG, 1, BORDER_COLOR);
+            ctx.fillStyle = `rgb(${ACCENT2[0]},${ACCENT2[1]},${ACCENT2[2]})`;
+            ctx.font = "bold 14px monospace";
+            ctx.fillText("MONITOR", panelX+10, GRID_TOP-5);
+            let yOff = GRID_TOP+10;
+            ctx.font = "10px monospace";
+            ctx.fillStyle = `rgb(${TEXT_DIM[0]},${TEXT_DIM[1]},${TEXT_DIM[2]})`;
+            ctx.fillText("TRACK", panelX+10, yOff); ctx.fillText("M", panelX+90, yOff); ctx.fillText("S", panelX+110, yOff); ctx.fillText("▶", panelX+135, yOff);
+            yOff+=18;
+            trackControlRects = [];
+            for(let r=0;r<GRID_ROWS;r++){
+                let col = TRACK_COLORS[r];
+                ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+                ctx.fillText(SOUND_NAMES[r].slice(0,4), panelX+10, yOff+4);
+                let muteRect = {x:panelX+85, y:yOff, w:18, h:18}; drawRoundedRect(muteRect.x, muteRect.y, 18,18,3, trackMute[r]? [200,60,60]:[60,60,100]);
+                let soloRect = {x:panelX+107, y:yOff, w:18, h:18}; drawRoundedRect(soloRect.x, soloRect.y, 18,18,3, trackSolo[r]? [200,200,60]:[60,60,100]);
+                let trigRect = {x:panelX+130, y:yOff, w:22, h:18}; drawRoundedRect(trigRect.x, trigRect.y, 22,18,3, [80,80,120]);
+                ctx.fillStyle = "#fff"; ctx.fillText(trackMute[r]?"M":"M", panelX+90, yOff+12);
+                ctx.fillStyle = trackSolo[r]?"#000":"#fff"; ctx.fillText("S", panelX+112, yOff+12);
+                ctx.fillStyle = `rgb(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]})`; ctx.fillText("▶", panelX+136, yOff+12);
+                trackControlRects.push({row:r, muteRect, soloRect, trigRect});
+                yOff+=22;
+            }
+            yOff+=8;
+            ctx.fillStyle = `rgb(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]})`; ctx.font = "bold 12px monospace"; ctx.fillText("PROYECTOS", panelX+10, yOff); yOff+=22;
+            let listH = 120; drawRoundedRect(panelX+5, yOff, panelW-10, listH, 5, [20,15,30], 1, BORDER_COLOR);
+            projectItemRects = [];
+            for(let i=0;i<Math.min(projectList.length,5);i++){
+                let itemY = yOff+2 + i*20;
+                if(i===selectedProjectIndex) ctx.fillStyle = "rgba(80,70,110,0.7)", ctx.fillRect(panelX+7, itemY, panelW-14, 18);
+                ctx.fillStyle = `rgb(${TEXT_COLOR[0]},${TEXT_COLOR[1]},${TEXT_COLOR[2]})`;
+                ctx.font = "10px monospace"; ctx.fillText(projectList[i].name.slice(0,18), panelX+12, itemY+13);
+                projectItemRects.push({idx:i, name:projectList[i].name, rect:{x:panelX+7, y:itemY, w:panelW-14, h:18}});
+            }
+            yOff += listH+5;
+            loadProjBtn = {x:panelX+10, y:yOff, w:65, h:24}; drawRoundedRect(loadProjBtn.x, loadProjBtn.y,65,24,5,[40,80,120]); ctx.fillStyle="#fff"; ctx.fillText("Cargar", loadProjBtn.x+10, loadProjBtn.y+16);
+            refreshBtn = {x:panelX+85, y:yOff, w:65, h:24}; drawRoundedRect(refreshBtn.x, refreshBtn.y,65,24,5,[60,60,90]); ctx.fillText("↻", refreshBtn.x+28, refreshBtn.y+16);
+            delProjBtn = {x:panelX+160, y:yOff, w:65, h:24}; drawRoundedRect(delProjBtn.x, delProjBtn.y,65,24,5,[120,50,50]); ctx.fillText("Borrar", delProjBtn.x+10, delProjBtn.y+16);
+            exportAllBtn = {x:panelX+235, y:yOff, w:75, h:24}; drawRoundedRect(exportAllBtn.x, exportAllBtn.y,75,24,5,[70,130,70]); ctx.fillText("📁 EXP ALL", exportAllBtn.x+8, exportAllBtn.y+16);
+            yOff+=34;
+            ctx.fillStyle = effectsMode ? `rgb(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]})` : `rgb(${ACCENT2[0]},${ACCENT2[1]},${ACCENT2[2]})`;
+            ctx.fillText("EFECTOS", panelX+10, yOff); yOff+=22;
+            sampleRects = [];
+            for(let i=0;i<sampleFileNames.length;i++){
+                let rectY = yOff+i*22;
+                drawRoundedRect(panelX+5, rectY, panelW-10, 20, 4, effectsMode?[60,50,90]:[30,25,50], 1, BORDER_COLOR);
+                ctx.fillStyle = `rgb(${TEXT_COLOR[0]},${TEXT_COLOR[1]},${TEXT_COLOR[2]})`;
+                ctx.fillText(sampleFileNames[i], panelX+12, rectY+14);
+                sampleRects.push({idx:i, rect:{x:panelX+5, y:rectY, w:panelW-10, h:20}});
+            }
+        }
+
+        function drawKeyboard(){
+            let ky = GRID_TOP + GRID_ROWS*CELL_HEIGHT + 90;
+            let kx = GRID_LEFT;
+            ctx.fillStyle = `rgb(${TEXT_DIM[0]},${TEXT_DIM[1]},${TEXT_DIM[2]})`; ctx.font = "9px monospace";
+            ctx.fillText("KEYBOARD SHORTCUTS", kx, ky-5);
+            const shortcuts = [["SPACE","Play/Stop"],["R","Record"],["M","Mix"],["S","Save"],["L","Refresh"],["E","Effects"],["+","BPM +5"],["-","BPM -5"],["ESC","Salir"]];
+            for(let i=0;i<shortcuts.length;i++){
+                let rx = kx + i*72;
+                let ry = ky+2;
+                drawRoundedRect(rx, ry, 64, 32, 5, [28,20,50], 1, [60,45,100]);
+                ctx.fillStyle = `rgb(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]})`; ctx.font = "bold 11px monospace";
+                ctx.fillText(shortcuts[i][0], rx+20, ry+18);
+                ctx.fillStyle = `rgb(${TEXT_DIM[0]},${TEXT_DIM[1]},${TEXT_DIM[2]})`; ctx.font = "8px monospace";
+                ctx.fillText(shortcuts[i][1], rx+12, ry+28);
+            }
+        }
+        function drawFooter(){
+            ctx.fillStyle = `rgb(${TEXT_DIM[0]},${TEXT_DIM[1]},${TEXT_DIM[2]})`;
+            ctx.font = "9px monospace";
+            ctx.fillText("ASPR GARDENER · Kids Lab · MIT · Web Clone", GRID_LEFT, HEIGHT-12);
+        }
+
+        // ---------- EVENTOS ----------
+        function handleCanvasClick(e){
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width/rect.width;
+            const scaleY = canvas.height/rect.height;
+            let x = (e.clientX - rect.left)*scaleX;
+            let y = (e.clientY - rect.top)*scaleY;
+            // grid cells
+            if(x>=GRID_LEFT && x<=GRID_LEFT+GRID_COLS*CELL_WIDTH && y>=GRID_TOP && y<=GRID_TOP+GRID_ROWS*CELL_HEIGHT){
+                let col = Math.floor((x-GRID_LEFT)/CELL_WIDTH);
+                let row = Math.floor((y-GRID_TOP)/CELL_HEIGHT);
+                if(row>=0 && row<GRID_ROWS && col>=0 && col<GRID_COLS) grid[row][col] = !grid[row][col];
+                return;
+            }
+            for(let btn of buttonRects){
+                if(x>=btn.x && x<=btn.x+btn.w && y>=btn.y && y<=btn.y+36){
+                    if(btn.action===0) startSequencer();
+                    if(btn.action===1) stopSequencer();
+                    if(btn.action===2) { recording=!recording; setStatus(recording?"REC ON":"REC OFF"); }
+                    if(btn.action===3) mixPattern();
+                    if(btn.action===4) saveCurrentProject();
+                    if(btn.action===5) { effectsMode=!effectsMode; setStatus(`EFX ${effectsMode?"ON":"OFF"}`); }
+                    if(btn.action===6) exportCurrentPatternToWav();
+                    if(btn.action===7) resetGrid();
+                    return;
+                }
+            }
+            for(let ctrl of trackControlRects){
+                if(x>=ctrl.muteRect.x && x<=ctrl.muteRect.x+18 && y>=ctrl.muteRect.y && y<=ctrl.muteRect.y+18){
+                    trackMute[ctrl.row]=!trackMute[ctrl.row]; if(trackMute[ctrl.row]) trackSolo[ctrl.row]=false; return;
+                }
+                if(x>=ctrl.soloRect.x && x<=ctrl.soloRect.x+18 && y>=ctrl.soloRect.y && y<=ctrl.soloRect.y+18){
+                    trackSolo[ctrl.row]=!trackSolo[ctrl.row]; if(trackSolo[ctrl.row]) trackMute[ctrl.row]=false; return;
+                }
+                if(x>=ctrl.trigRect.x && x<=ctrl.trigRect.x+22 && y>=ctrl.trigRect.y && y<=ctrl.trigRect.y+18){
+                    playDrum(ctrl.row); rowFlash[ctrl.row]=1.0; return;
+                }
+            }
+            for(let proj of projectItemRects){
+                if(x>=proj.rect.x && x<=proj.rect.x+proj.rect.w && y>=proj.rect.y && y<=proj.rect.y+proj.rect.h){
+                    selectedProjectIndex = proj.idx; return;
+                }
+            }
+            if(loadProjBtn && x>=loadProjBtn.x && x<=loadProjBtn.x+65 && y>=loadProjBtn.y && y<=loadProjBtn.y+24){
+                if(selectedProjectIndex>=0 && projectList[selectedProjectIndex]) loadProject(projectList[selectedProjectIndex]); return;
+            }
+            if(refreshBtn && x>=refreshBtn.x && x<=refreshBtn.x+65 && y>=refreshBtn.y && y<=refreshBtn.y+24){
+                refreshProjectList(); selectedProjectIndex=-1; return;
+            }
+            if(delProjBtn && x>=delProjBtn.x && x<=delProjBtn.x+65 && y>=delProjBtn.y && y<=delProjBtn.y+24){
+                if(selectedProjectIndex>=0) deleteProject(selectedProjectIndex); return;
+            }
+            if(exportAllBtn && x>=exportAllBtn.x && x<=exportAllBtn.x+75 && y>=exportAllBtn.y && y<=exportAllBtn.y+24){
+                exportAllProjects(); return;
+            }
+            for(let samp of sampleRects){
+                if(effectsMode && x>=samp.rect.x && x<=samp.rect.x+samp.rect.w && y>=samp.rect.y && y<=samp.rect.y+samp.rect.h){
+                    playSampleEffect(samp.idx); return;
+                }
+            }
+        }
+
+        function animate(){
+            for(let i=0;i<GRID_ROWS;i++) if(rowFlash[i]>0) rowFlash[i] = Math.max(0, rowFlash[i]-0.1);
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        function keyHandler(e){
+            let key = e.key;
+            if(key === " " || key === "Space"){ e.preventDefault(); playing?stopSequencer():startSequencer(); }
+            else if(key === "r" || key === "R"){ recording=!recording; setStatus(recording?"REC ON":"OFF"); }
+            else if(key === "m" || key === "M"){ mixPattern(); }
+            else if(key === "s" || key === "S"){ saveCurrentProject(); }
+            else if(key === "l" || key === "L"){ refreshProjectList(); }
+            else if(key === "e" || key === "E"){ effectsMode=!effectsMode; setStatus(`EFX ${effectsMode?"ON":"OFF"}`); }
+            else if(key === "+" || key === "="){ updateBpm(bpm+5); }
+            else if(key === "-"){ updateBpm(bpm-5); }
+            else if(key === "Escape"){ /* no cierra, solo stop? */ }
+        }
+
+        function initAudioOnFirstClick(){
+            if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+            if(!drumBuffers.length){ generateAllDrumBuffers(); generateSampleBuffers(); }
+        }
+        canvas.addEventListener('click', (e)=>{ initAudioOnFirstClick(); handleCanvasClick(e); });
+        window.addEventListener('keydown', keyHandler);
+        refreshProjectList();
+        generateAllDrumBuffers = generateAllDrumBuffers.bind(this);
+        generateSampleBuffers = generateSampleBuffers.bind(this);
+        ensureAudioContext();
+        generateAllDrumBuffers();
+        generateSampleBuffers();
+        animate();
+        setStatus("✅ Listo! Haz click / Play");
+    })();
+</script>
+</body>
+</html>
